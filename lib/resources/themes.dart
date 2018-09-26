@@ -6,11 +6,11 @@ ThemeData salbangTheme() {
 
   return base.copyWith(
     primaryColor: colorBlack,
-    scaffoldBackgroundColor: colorSurfaceWhite,
+    scaffoldBackgroundColor: colorScaffold,
     cardColor: colorWhite,
     hintColor: Colors.black,
     errorColor: Colors.red,
-    buttonColor: colorButton,
+    buttonColor: colorButtonAdd,
     // FONT THEMES
     primaryTextTheme: _salbangThemeTextTheme(base.primaryTextTheme),
     // ICON THEMES ( CHANGE COLOR )
@@ -27,6 +27,10 @@ TextTheme _salbangThemeTextTheme(TextTheme base) {
             color: colorAltDarkGrey),
         display1: base.display1.copyWith(
             fontSize: 10.0,
+            fontWeight: FontWeight.w400,
+            color: colorAltDarkGrey),
+        display2: base.display2.copyWith(
+            fontSize: 18.0,
             fontWeight: FontWeight.w400,
             color: colorAltDarkGrey),
       )
