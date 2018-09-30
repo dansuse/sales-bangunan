@@ -21,7 +21,7 @@ class ProductTable{
   static String getCreateTableQuery(){
     return 'CREATE TABLE '
         + NAME + '('
-        + COLUMN_ID+' INTEGER AUTOINCREMENT, '
+        + COLUMN_ID+' INTEGER PRIMARY KEY AUTOINCREMENT, '
         + COLUMN_NAME+' TEXT, '
         + COLUMN_PRICE + ' REAL, '
         + COLUMN_STOCK + ' INTEGER, '
@@ -32,11 +32,11 @@ class ProductTable{
         + COLUMN_FK_UNIT + ' INTEGER, '
         + COLUMN_FK_TYPE + ' INTEGER, '
         + COLUMN_FK_SIZE + ' INTEGER, '
-        + 'PRIMARY KEY (${COLUMN_ID}),'
-        + 'FOREIGN_KEY(${COLUMN_FK_BRAND}) REFERENCES ${BrandTable.NAME}(${BrandTable.COLUMN_ID}),'
-        + 'FOREIGN_KEY(${COLUMN_FK_UNIT}) REFERENCES ${UnitTable.NAME}(${UnitTable.COLUMN_ID}),'
-        + 'FOREIGN_KEY(${COLUMN_FK_TYPE}) REFERENCES ${TypeTable.NAME}(${TypeTable.COLUMN_ID}),'
-        + 'FOREIGN_KEY(${COLUMN_FK_SIZE}) REFERENCES ${SizeTable.NAME}(${SizeTable.COLUMN_ID})'
+        //+ 'PRIMARY KEY (${COLUMN_ID}),'
+        + 'FOREIGN KEY(${COLUMN_FK_BRAND}) REFERENCES ${BrandTable.NAME}(${BrandTable.COLUMN_ID}),'
+        + 'FOREIGN KEY(${COLUMN_FK_UNIT}) REFERENCES ${UnitTable.NAME}(${UnitTable.COLUMN_ID}),'
+        + 'FOREIGN KEY(${COLUMN_FK_TYPE}) REFERENCES ${TypeTable.NAME}(${TypeTable.COLUMN_ID}),'
+        + 'FOREIGN KEY(${COLUMN_FK_SIZE}) REFERENCES ${SizeTable.NAME}(${SizeTable.COLUMN_ID})'
         + ')';
   }
 

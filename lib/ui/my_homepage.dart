@@ -95,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: new StreamBuilder<int>(
             stream: _myHomePageBloc.outputHomePageBody,
             builder: (context, snapshot) {
-                return _getDrawerItemWidget(snapshot.hasData ? snapshot.data : 0);
+                return _getDrawerItemWidget(snapshot.hasData ? snapshot.data : 4);
             },
           ),
         ),);

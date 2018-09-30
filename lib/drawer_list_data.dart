@@ -15,9 +15,9 @@ class DrawerListItemData{
       'Master',
       children: <DrawerItems>[
         DrawerItems('Produk', index: 3),
-        DrawerItems('Merk Produk', index: 4),
-        DrawerItems('Jenis Produk', index: 5),
-        DrawerItems('Ukuran Produk', index: 6),
+        DrawerItems('Merk(Brand) Produk', index: 4),
+        DrawerItems('Tipe(Type) Produk', index: 5),
+        DrawerItems('Ukuran(Size) Produk', index: 6),
       ],
     ),
   ];
