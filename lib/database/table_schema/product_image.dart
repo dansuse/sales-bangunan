@@ -10,11 +10,11 @@ class ProductImageTable{
   static String getCreateTableQuery(){
     return 'CREATE TABLE '
         + NAME + '('
-        + COLUMN_ID+' INTEGER AUTOINCREMENT, '
+        + COLUMN_ID+' INTEGER PRIMARY KEY AUTOINCREMENT, '
         + COLUMN_URL+' TEXT, '
         + COLUMN_STATUS + ' INTEGER, '
         + COLUMN_FK_PRODUCT + ' INTEGER, '
-        + 'PRIMARY KEY (${COLUMN_ID} , ${COLUMN_FK_PRODUCT}),'
+        //+ 'PRIMARY KEY (${COLUMN_ID} , ${COLUMN_FK_PRODUCT}),'
         + 'FOREIGN KEY (${COLUMN_FK_PRODUCT}) REFERENCES ${ProductTable.NAME}(${ProductTable.COLUMN_ID})'
         + ')';
   }

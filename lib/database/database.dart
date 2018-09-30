@@ -47,9 +47,10 @@ class DBHelper{
     for(String query in createTableQueries){
       await db.execute(query);
     }
+    await db.execute('CREATE UNIQUE INDEX pk_index ON "${ProductImageTable.NAME}"("${ProductImageTable.COLUMN_ID}","${ProductImageTable.COLUMN_FK_PRODUCT}")');
   }
 
-  Future<Null> insertOrUpdateBrand(Brand brand) async{
+  Future<Brand> insertOrUpdateBrand(Brand brand) async{
     final Database dbClient = await db;
     final Map<String, dynamic> dataToBeInserted = {
       BrandTable.COLUMN_NAME : brand.name,
@@ -61,7 +62,8 @@ class DBHelper{
         BrandTable.COLUMN_ID : brand.id
       });
     }
-    dbClient.insert(BrandTable.NAME, dataToBeInserted, conflictAlgorithm: ConflictAlgorithm.replace);
+    brand.id = await dbClient.insert(BrandTable.NAME, dataToBeInserted, conflictAlgorithm: ConflictAlgorithm.replace);
+    return brand;
   }
 
   Future<Null> deleteBrand(int id)async{
