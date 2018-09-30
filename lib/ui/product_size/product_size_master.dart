@@ -32,7 +32,7 @@ class _ProductSizeMasterState extends State<ProductSizeMaster> {
       body: new StreamBuilder<ResponseSalbang<List<ProductSize>>>(
         stream: _sizeBloc.outputListDataSizes,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.hasData && snapshot.data.result == ResultResponseSalbang.GET_SIZE_SUCESS) {
             return new CustomScrollView(
               slivers: <Widget>[
                 new SliverAppBar(

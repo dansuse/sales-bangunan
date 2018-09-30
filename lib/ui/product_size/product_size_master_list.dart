@@ -40,11 +40,12 @@ class _ProductSizeMasterListState extends State<ProductSizeMasterList> {
           new IconButton(
               icon: new Icon(Icons.delete),
               onPressed: () {
-                showDialog(context: context, builder: (_) => new SimpleDialog(
-                  title : new Text('Apakah anda yakin untuk menghapus ukuran dalam ' + widget.productSize.name + ''
-                      ' ? \njika iya maka semua barang yang berukuran dalam '+ widget.productSize.name + ''
-                      ' akan terhapus.', textAlign: TextAlign.justify,),
-                    children: <Widget>[
+                showDialog(context: context, builder: (_) => new AlertDialog(
+                  title : new Text("Delete Katalog Ukuran"),
+                    content:  new Text('Apakah anda yakin untuk menghapus ukuran dalam ' + widget.productSize.name + ''
+                        ' ? \njika iya maka semua barang yang berukuran dalam '+ widget.productSize.name + ''
+                        ' akan terhapus.'),
+                    actions: <Widget>[
                       new Row(
                         mainAxisAlignment : MainAxisAlignment.end,
                         children: <Widget>[

@@ -79,3 +79,11 @@ class ResponseSalbang<T>{
   T data;
   ResponseSalbang({this.httpStatusCode, this.result, this.data, this.errorMessage});
 }
+class ResultResponseSalbang{
+  static int INSERT_SIZE_SUCCESS = 1;
+  static int UPDATE_SIZE_SUCCESS = 2;
+  static int UPDATE_SIZE_FAIL = -2;
+  static int INSERT_SIZE_FAIL = -1;
+  static int GET_SIZE_SUCESS = 3;
+  static int GET_SIZE_FAIL = -3;
+}
