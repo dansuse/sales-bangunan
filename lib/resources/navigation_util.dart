@@ -15,7 +15,7 @@ class NavigationUtil{
               },
             );
           },
-          transitionDuration: Duration(milliseconds: 450)),
+          transitionDuration: Duration(milliseconds: 150)),
     );
   }
 }

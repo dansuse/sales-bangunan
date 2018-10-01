@@ -6,7 +6,6 @@ import 'package:salbang/bloc/brand_bloc.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/model/button_state.dart';
 import 'package:salbang/resources/colors.dart';
-import 'package:rxdart/rxdart.dart';
 
 class ProductBrandSettings extends StatefulWidget {
   @override

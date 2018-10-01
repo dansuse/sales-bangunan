@@ -23,6 +23,7 @@ class BrandBloc{
     _outputOperationResult.close();
     _outputButtonInsertBrandState.close();
     _outputBrandStatus.close();
+
   }
 
   void updateStatus(bool status){

@@ -8,6 +8,7 @@ import 'package:salbang/ui/product/product_catalog.dart';
 import 'package:salbang/ui/product/product_cupertino.dart';
 import 'package:salbang/ui/product/product_master.dart';
 import 'package:salbang/ui/product_brand/product_brand_settings.dart';
+import 'package:salbang/ui/product_size/product_size_master.dart';
 import 'package:salbang/ui/product_size/product_size_settings.dart';
 import 'package:salbang/ui/product_type/product_type_settings.dart';
 
@@ -57,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 5:
         return new ProductTypeSettings();
       case 6:
-        return new ProductSizeSettings();
+        return new ProductSizeMaster();
       default:
         return new Product();
     }
@@ -95,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: new StreamBuilder<int>(
             stream: _myHomePageBloc.outputHomePageBody,
             builder: (context, snapshot) {
-                return _getDrawerItemWidget(snapshot.hasData ? snapshot.data : 4);
+                return _getDrawerItemWidget(snapshot.hasData ? snapshot.data : 0);
             },
           ),
         ),);

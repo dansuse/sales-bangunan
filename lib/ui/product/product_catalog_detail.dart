@@ -93,12 +93,12 @@ class _ProductCatalogDetailState extends State<ProductCatalogDetail> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                buildProductDescriptionWidget("Nama", contoh),
-                buildProductDescriptionWidget("Ukuran", contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "),
-                buildProductDescriptionWidget("Tipe", contoh),
-                buildProductDescriptionWidget("Merk", contoh),
-                buildProductDescriptionWidget("Harga", contoh),
-                buildProductDescriptionWidget("Deskripsi", contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "),
+                buildProductDescriptionWidget('Nama', contoh),
+                buildProductDescriptionWidget('Ukuran', contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "),
+                buildProductDescriptionWidget('Tipe', contoh),
+                buildProductDescriptionWidget('Merk', contoh),
+                buildProductDescriptionWidget('Harga', contoh),
+                buildProductDescriptionWidget('Deskripsi', contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "),
 
                 const SizedBox(
                   height: 4.0,
