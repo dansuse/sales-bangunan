@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:path/path.dart';
+import 'package:salbang/bloc/size_bloc.dart';
 import 'package:salbang/database/table_schema/brand.dart';
 import 'package:salbang/database/table_schema/product.dart';
 import 'package:salbang/database/table_schema/product_image.dart';
@@ -11,8 +12,8 @@ import 'package:salbang/model/brand.dart';
 import 'package:salbang/model/product.dart';
 import 'package:salbang/model/product_image.dart';
 import 'package:salbang/model/product_type.dart';
-import 'package:salbang/model/size.dart';
-import 'package:salbang/model/unit.dart';
+import 'package:salbang/model/product_size.dart';
+import 'package:salbang/model/product_unit.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DBHelper{
@@ -30,6 +31,7 @@ class DBHelper{
 
   Future<Database> initDb() async {
     final String databasesPath = await getDatabasesPath();
+    print(databasesPath);
     final String path = join(databasesPath, DATABASE_NAME);
     final Database databaseInstance = await openDatabase(path, version: DATABASE_VERSION, onCreate: _onCreate);
     return databaseInstance;
@@ -77,8 +79,9 @@ class DBHelper{
     );
   }
 
-  Future<Null> insertOrUpdateSize(Size size) async{
+  Future<ProductSize> insertOrUpdateSize(ProductSize size) async{
     final Database dbClient = await db;
+    print(size.name + " dlm void");
     final Map<String, dynamic> dataToBeInserted = {
       SizeTable.COLUMN_NAME : size.name,
       SizeTable.COLUMN_STATUS : size.status,
@@ -88,7 +91,8 @@ class DBHelper{
         SizeTable.COLUMN_ID : size.id
       });
     }
-    dbClient.insert(SizeTable.NAME, dataToBeInserted, conflictAlgorithm: ConflictAlgorithm.replace);
+    size.id = await dbClient.insert(SizeTable.NAME, dataToBeInserted, conflictAlgorithm: ConflictAlgorithm.replace);
+    return size;
   }
 
   Future<Null> deleteSize(int id)async{
@@ -154,7 +158,7 @@ class DBHelper{
     );
   }
 
-  Future<Null> insertOrUpdateUnit(Unit unit) async{
+  Future<Null> insertOrUpdateUnit(ProductUnit unit) async{
     final Database dbClient = await db;
     final Map<String, dynamic> dataToBeInserted = {
       UnitTable.COLUMN_NAME : unit.name,
@@ -199,6 +203,20 @@ class DBHelper{
       });
     }
     dbClient.insert(ProductTable.NAME, dataToBeInserted, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<ResponseSalbang<List<ProductSize>>> getProductSizes() async {
+    var dbClient = await db;
+    final List<Map> list = await dbClient.query('size',
+        columns: ['id', 'name', 'status']);
+    if (list.length > 0) {
+      List<ProductSize> _dataProductSize = new List();
+      for (int i = 0; i < list.length; i++) {
+        _dataProductSize.add(new ProductSize(list[i]['name'], id: list[i]['id'], status:list[i]['status'] ));
+      }
+      return ResponseSalbang(httpStatusCode: 400, result: 1, data: _dataProductSize,errorMessage: '');
+    }
+    return ResponseSalbang(httpStatusCode: 444, result: 0 , data: null ,errorMessage: 'Data Tidak Ditemukan');
   }
 
   Future<Null> addProductImages(List<ProductImage> images) async{

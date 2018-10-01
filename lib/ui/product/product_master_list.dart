@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:salbang/bloc/cupertino_picker_bloc.dart';
+import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/ui/product/product_settings.dart';
@@ -26,7 +28,10 @@ class _ProductMasterListState extends State<ProductMasterList> {
               icon: new Icon(Icons.edit),
               onPressed: () {
                 NavigationUtil.navigateToAnyWhere(
-                    context, ProductSettings(addMode: false),);
+                  context, BlocProvider<CupertinoPickerBloc>(
+                  bloc: CupertinoPickerBloc(),
+                  child: ProductSettings(addMode: false),
+                ),);
               },
               color: colorEdit,
             ),
