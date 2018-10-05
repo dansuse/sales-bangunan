@@ -214,9 +214,9 @@ class DBHelper{
       for (int i = 0; i < list.length; i++) {
         _dataProductSize.add(new ProductSize(list[i]['name'], id: list[i]['id'], status:list[i]['status'] ));
       }
-      return ResponseSalbang(httpStatusCode: 400, result: 1, data: _dataProductSize,errorMessage: '');
+      return ResponseSalbang(httpStatusCode: 200, result: ResultResponseSalbang.GET_SIZE_SUCESS, data: _dataProductSize,errorMessage: '');
     }
-    return ResponseSalbang(httpStatusCode: 444, result: 0 , data: null ,errorMessage: 'Data Tidak Ditemukan');
+    return ResponseSalbang(httpStatusCode: 404, result:ResultResponseSalbang.GET_SIZE_FAIL, data: null ,errorMessage: 'Data Tidak Ditemukan');
   }
 
   Future<Null> addProductImages(List<ProductImage> images) async{
