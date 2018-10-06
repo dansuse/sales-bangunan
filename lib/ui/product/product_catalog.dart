@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:salbang/resources/navigation_util.dart';
+
 import 'product_catalog_detail.dart';
 import 'product_catalog_list_items.dart';
-import 'package:salbang/resources/navigation_util.dart';
 
 class Product extends StatefulWidget {
   @override

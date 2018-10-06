@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:salbang/bloc/brand_bloc.dart';
 import 'package:salbang/bloc/my_homepage_bloc.dart';
+import 'package:salbang/database/database.dart';
 import 'package:salbang/drawer_items.dart';
 import 'package:salbang/drawer_list_data.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/ui/product/product_catalog.dart';
-import 'package:salbang/ui/product/product_cupertino.dart';
 import 'package:salbang/ui/product/product_master.dart';
+import 'package:salbang/ui/product_brand/product_brand_master.dart';
 import 'package:salbang/ui/product_brand/product_brand_settings.dart';
 import 'package:salbang/ui/product_size/product_size_master.dart';
-import 'package:salbang/ui/product_size/product_size_settings.dart';
 import 'package:salbang/ui/product_type/product_type_settings.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -50,7 +51,10 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0:
         return new Product();
       case 1:
-        return new CupertinoPickerDemo();
+        return new BlocProvider<BrandBloc>(
+            child: new ProductBrandMaster(),
+            bloc: BrandBloc(DBHelper()),
+        );
       case 3:
         return new ProductMaster();
       case 4:
@@ -77,28 +81,29 @@ class _MyHomePageState extends State<MyHomePage> {
       ));
     }
     return new Scaffold(
-        key: _key,
-        appBar: new AppBar(
-          backgroundColor: colorAppbar,
-          title: const Text('Sal-Bang'),
-          centerTitle: true,
-          elevation: 0.0,
-        ),
-        drawer: new Drawer(
-          child: new SafeArea(
-            child: new ListView(
-              padding: EdgeInsets.zero,
-              children: <Widget>[new Column(children: drawerOptions)],
-            ),
+      key: _key,
+      appBar: new AppBar(
+        backgroundColor: colorAppbar,
+        title: const Text('Sal-Bang'),
+        centerTitle: true,
+        elevation: 0.0,
+      ),
+      drawer: new Drawer(
+        child: new SafeArea(
+          child: new ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[new Column(children: drawerOptions)],
           ),
         ),
-        body: new SafeArea(
-          child: new StreamBuilder<int>(
-            stream: _myHomePageBloc.outputHomePageBody,
-            builder: (context, snapshot) {
-                return _getDrawerItemWidget(snapshot.hasData ? snapshot.data : 0);
-            },
-          ),
-        ),);
+      ),
+      body: new SafeArea(
+        child: new StreamBuilder<int>(
+          stream: _myHomePageBloc.outputHomePageBody,
+          builder: (context, snapshot) {
+              return _getDrawerItemWidget(snapshot.hasData ? snapshot.data : 1);
+          },
+        ),
+      ),
+    );
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:salbang/model/product_size.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
-import 'package:salbang/ui/product/product_settings.dart';
 import 'package:salbang/ui/product_size/data_product_size.dart';
 import 'package:salbang/ui/product_size/product_size_settings.dart';
 
