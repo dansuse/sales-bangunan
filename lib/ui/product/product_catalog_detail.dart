@@ -1,10 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'product_catalog_detail_picture.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/ui/product/product_catalog_detail_picture.dart';
+
+import 'product_catalog_detail_picture.dart';
 
 class ProductCatalogDetail extends StatefulWidget {
   @override

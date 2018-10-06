@@ -4,27 +4,40 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/brand_bloc.dart';
 import 'package:salbang/database/database.dart';
+import 'package:salbang/model/brand.dart';
 import 'package:salbang/model/button_state.dart';
+import 'package:salbang/model/response_database.dart';
 import 'package:salbang/resources/colors.dart';
 
 class ProductBrandSettings extends StatefulWidget {
+  final Brand brand;
+  ProductBrandSettings({this.brand});
   @override
   _ProductBrandSettingsState createState() => _ProductBrandSettingsState();
 }
 
 class _ProductBrandSettingsState extends State<ProductBrandSettings> {
-  final _keyFormInsertBrand = GlobalKey<FormState>();
+  final GlobalKey<FormState> _keyFormInsertBrand = GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
   TextEditingController _inputBrandNameController;
   TextEditingController _inputBrandDescriptionController;
   BrandBloc _brandBloc;
-  StreamSubscription<String> _blocOperationSubscription;
+  StreamSubscription<ResponseDatabase<Brand>> _blocOperationSubscription;
+  bool _checkboxStatusInitialValue;
   @override
   void initState() {
     super.initState();
     _inputBrandNameController = TextEditingController();
     _inputBrandDescriptionController = TextEditingController();
-    _inputBrandNameController.text = 'Produgen';
-    _inputBrandDescriptionController.text = 'Brand Susu Lansia';
+    if(widget.brand != null){
+      _inputBrandNameController.text = widget.brand.name;
+      _inputBrandDescriptionController.text = widget.brand.description;
+      _checkboxStatusInitialValue = widget.brand.status == 1 ? true : false;
+    }else{
+      _inputBrandNameController.text = 'Produgen';
+      _inputBrandDescriptionController.text = 'Brand Susu Lansia';
+      _checkboxStatusInitialValue = true;
+    }
     _brandBloc = BrandBloc(DBHelper());
   }
 
@@ -32,6 +45,9 @@ class _ProductBrandSettingsState extends State<ProductBrandSettings> {
   void dispose() {
     _inputBrandNameController.dispose();
     _inputBrandDescriptionController.dispose();
+    if(_blocOperationSubscription != null){
+      _blocOperationSubscription.cancel();
+    }
     _brandBloc.dispose();
     super.dispose();
   }
@@ -41,12 +57,12 @@ class _ProductBrandSettingsState extends State<ProductBrandSettings> {
     if(_blocOperationSubscription != null){
       _blocOperationSubscription.cancel();
     }
-    _blocOperationSubscription = _brandBloc.outputOperationResult.listen((String message){
-      Scaffold
-          .of(context)
-          .showSnackBar(SnackBar(content: Text(message)));
+    _blocOperationSubscription = _brandBloc.outputOperationResult.listen((ResponseDatabase<Brand> response){
+      _keyScaffold.currentState.showSnackBar(SnackBar(content: Text(response.message)));
     });
-    return new SafeArea(child: new Scaffold(
+    return new SafeArea(
+      child: new Scaffold(
+        key: _keyScaffold,
         resizeToAvoidBottomPadding: false,
         body: new Container(
           padding: const EdgeInsets.all(16.0),
@@ -93,15 +109,16 @@ class _ProductBrandSettingsState extends State<ProductBrandSettings> {
                       children: <Widget>[
                         StreamBuilder<bool>(
                             stream: _brandBloc.outputBrandStatus,
-                            initialData: true,
-                            builder: (context, snapshot) =>
-                              new Checkbox(
+                            initialData: _checkboxStatusInitialValue,
+                            builder: (context, snapshot){
+                              return new Checkbox(
                                 activeColor: colorButtonAdd,
                                 value: snapshot.data,
                                 onChanged: (bool newStatus) {
                                   _brandBloc.updateStatus(newStatus);
                                 },
-                              )
+                              );
+                            }
                         ),
                         Expanded(
                           child: new Text ("Status Aktif Merk"),
@@ -117,7 +134,11 @@ class _ProductBrandSettingsState extends State<ProductBrandSettings> {
                             child: snapshot.data == ButtonState.IDLE ? const Text('OK') : const Text('PROCESSING'),
                             onPressed: snapshot.data == ButtonState.IDLE ? () {
                               if(_keyFormInsertBrand.currentState.validate()){
-                                _brandBloc.insertBrand(_inputBrandNameController.text, _inputBrandDescriptionController.text);
+                                if(widget.brand != null){
+                                  _brandBloc.insertOrUpdateBrand(_inputBrandNameController.text, _inputBrandDescriptionController.text, widget.brand.id);
+                                }else{
+                                  _brandBloc.insertOrUpdateBrand(_inputBrandNameController.text, _inputBrandDescriptionController.text, DBHelper.ID_FOR_INSERT);
+                                }
                               }
                             } : null,
                           ),

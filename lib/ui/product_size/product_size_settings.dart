@@ -2,11 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:salbang/bloc/brand_bloc.dart';
 import 'package:salbang/bloc/size_bloc.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/model/button_state.dart';
-import 'package:salbang/model/product_size.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/ui/product_size/data_product_size.dart';
 

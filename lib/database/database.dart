@@ -11,9 +11,10 @@ import 'package:salbang/database/table_schema/unit.dart';
 import 'package:salbang/model/brand.dart';
 import 'package:salbang/model/product.dart';
 import 'package:salbang/model/product_image.dart';
-import 'package:salbang/model/product_type.dart';
 import 'package:salbang/model/product_size.dart';
+import 'package:salbang/model/product_type.dart';
 import 'package:salbang/model/product_unit.dart';
+import 'package:salbang/model/response_database.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DBHelper{
@@ -52,20 +53,36 @@ class DBHelper{
     await db.execute('CREATE UNIQUE INDEX pk_index ON "${ProductImageTable.NAME}"("${ProductImageTable.COLUMN_ID}","${ProductImageTable.COLUMN_FK_PRODUCT}")');
   }
 
-  Future<Brand> insertOrUpdateBrand(Brand brand) async{
-    final Database dbClient = await db;
-    final Map<String, dynamic> dataToBeInserted = {
-      BrandTable.COLUMN_NAME : brand.name,
-      BrandTable.COLUMN_DESCRIPTION : brand.description,
-      BrandTable.COLUMN_STATUS : brand.status,
-    };
-    if(brand.id != ID_FOR_INSERT){
-      dataToBeInserted.addAll({
-        BrandTable.COLUMN_ID : brand.id
-      });
+  Future<ResponseDatabase<Brand>> insertOrUpdateBrand(Brand brand) async{
+    final bool isTryingInsert = brand.id == ID_FOR_INSERT;
+    try{
+      final Database dbClient = await db;
+      final Map<String, dynamic> dataToBeInserted = {
+        BrandTable.COLUMN_NAME : brand.name,
+        BrandTable.COLUMN_DESCRIPTION : brand.description,
+        BrandTable.COLUMN_STATUS : brand.status,
+      };
+      if(brand.id != ID_FOR_INSERT){
+        dataToBeInserted.addAll({
+          BrandTable.COLUMN_ID : brand.id
+        });
+      }
+      brand.id = await dbClient.insert(BrandTable.NAME, dataToBeInserted, conflictAlgorithm: ConflictAlgorithm.replace);
+      String message = isTryingInsert ? '${brand.name} dengan id "${brand.id} berhasil ditambahkan'
+          : '${brand.name} dengan id "${brand.id} berhasil diupdate';
+      return ResponseDatabase<Brand>(
+        result: ResponseDatabase.SUCCESS,
+        data: brand,
+        message: message,
+      );
+    }on DatabaseException catch(_){
+      final String errorMessage = isTryingInsert ? 'Terjadi error saat coba insert brand pada database'
+          : 'Terjadi error saat coba update brand pada database';
+      return ResponseDatabase<Brand>(
+        result: ResponseDatabase.ERROR_SHOULD_RETRY,
+        message: errorMessage,
+      );
     }
-    brand.id = await dbClient.insert(BrandTable.NAME, dataToBeInserted, conflictAlgorithm: ConflictAlgorithm.replace);
-    return brand;
   }
 
   Future<Null> deleteBrand(int id)async{
@@ -77,6 +94,34 @@ class DBHelper{
         where: BrandTable.COLUMN_ID + ' = ?',
         whereArgs: [id]
     );
+  }
+
+  Future<ResponseDatabase<List<Brand>>> getBrands()async{
+    try{
+      final Database dbClient = await db;
+      final List<Map<String, dynamic>> queryResult = await dbClient.query(BrandTable.NAME);
+      if(queryResult.isEmpty){
+        return ResponseDatabase<List<Brand>>(result: ResponseDatabase.SUCCESS_EMPTY);
+      }else{
+        final List<Brand>brands = queryResult.map((Map<String, dynamic> item){
+          return new Brand(
+            item[BrandTable.COLUMN_NAME],
+            item[BrandTable.COLUMN_DESCRIPTION],
+            id: item[BrandTable.COLUMN_ID],
+            status: item[BrandTable.COLUMN_STATUS],
+          );
+        }).toList();
+        return ResponseDatabase<List<Brand>>(
+          result: ResponseDatabase.SUCCESS,
+          data: brands,
+        );
+      }
+    }on DatabaseException catch(_){
+      return ResponseDatabase<List<Brand>>(
+        result: ResponseDatabase.ERROR_SHOULD_RETRY,
+        message: 'Terjadi error saat coba mendapatkan brand dari database',
+      );
+    }
   }
 
   Future<ProductSize> insertOrUpdateSize(ProductSize size) async{

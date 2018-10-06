@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/my_homepage_bloc.dart';
-
-import 'package:salbang/ui/my_homepage.dart';
 import 'package:salbang/provider/bloc_provider.dart';
+import 'package:salbang/ui/my_homepage.dart';
 
 import 'resources/themes.dart';
 
-void main() => runApp(new MyApp());
+void main(){
+  runApp(new MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
