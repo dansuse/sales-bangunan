@@ -11,7 +11,7 @@ import 'package:salbang/ui/product/product_master.dart';
 import 'package:salbang/ui/product_brand/product_brand_master.dart';
 import 'package:salbang/ui/product_brand/product_brand_settings.dart';
 import 'package:salbang/ui/product_size/product_size_master.dart';
-import 'package:salbang/ui/product_type/product_type_settings.dart';
+import 'package:salbang/ui/product_type/product_type_master.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 4:
         return new ProductBrandSettings();
       case 5:
-        return new ProductTypeSettings();
+        return new ProductTypeMaster();
       case 6:
         return new ProductSizeMaster();
       default:

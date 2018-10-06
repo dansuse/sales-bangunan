@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:path/path.dart';
-import 'package:salbang/bloc/size_bloc.dart';
+import 'package:salbang/database/response_salbang.dart';
 import 'package:salbang/database/table_schema/brand.dart';
 import 'package:salbang/database/table_schema/product.dart';
 import 'package:salbang/database/table_schema/product_image.dart';
@@ -178,7 +178,7 @@ class DBHelper{
     }).toList();
   }
 
-  Future<Null> insertOrUpdateType(ProductType type) async{
+  Future<ProductType> insertOrUpdateType(ProductType type) async{
     final Database dbClient = await db;
     final Map<String, dynamic> dataToBeInserted = {
       TypeTable.COLUMN_NAME : type.name,
@@ -189,7 +189,8 @@ class DBHelper{
         TypeTable.COLUMN_ID : type.id
       });
     }
-    dbClient.insert(TypeTable.NAME, dataToBeInserted, conflictAlgorithm: ConflictAlgorithm.replace);
+    type.id = await dbClient.insert(TypeTable.NAME, dataToBeInserted, conflictAlgorithm: ConflictAlgorithm.replace);
+    return type;
   }
 
   Future<Null> deleteType(int id)async{
@@ -259,9 +260,23 @@ class DBHelper{
       for (int i = 0; i < list.length; i++) {
         _dataProductSize.add(new ProductSize(list[i]['name'], id: list[i]['id'], status:list[i]['status'] ));
       }
-      return ResponseSalbang(httpStatusCode: 200, result: ResultResponseSalbang.GET_SIZE_SUCESS, data: _dataProductSize,errorMessage: '');
+      return ResponseSalbang(httpStatusCode: 200, result: ResultResponseSalbang.GET_SQFLITE_SUCCESS, data: _dataProductSize,errorMessage: '');
     }
-    return ResponseSalbang(httpStatusCode: 404, result:ResultResponseSalbang.GET_SIZE_FAIL, data: null ,errorMessage: 'Data Tidak Ditemukan');
+    return ResponseSalbang(httpStatusCode: 404, result:ResultResponseSalbang.GET_SQFLITE_FAIL, data: null ,errorMessage: 'Data Tidak Ditemukan');
+  }
+
+  Future<ResponseSalbang<List<ProductType>>> getProductTypes() async {
+    var dbClient = await db;
+    final List<Map> list = await dbClient.query('type',
+        columns: ['id', 'name', 'status']);
+    if (list.length > 0) {
+      List<ProductType> _dataProductType = new List();
+      for (int i = 0; i < list.length; i++) {
+        _dataProductType.add(new ProductType( id: list[i]['id'], name : list[i]['name'],status:list[i]['status'] ));
+      }
+      return ResponseSalbang(httpStatusCode: 200, result: ResultResponseSalbang.GET_SQFLITE_SUCCESS, data: _dataProductType,errorMessage: '');
+    }
+    return ResponseSalbang(httpStatusCode: 404, result:ResultResponseSalbang.GET_SQFLITE_FAIL, data: null ,errorMessage: 'Data Tidak Ditemukan');
   }
 
   Future<Null> addProductImages(List<ProductImage> images) async{

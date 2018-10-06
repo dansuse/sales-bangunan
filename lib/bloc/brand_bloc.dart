@@ -23,8 +23,7 @@ class BrandBloc extends BlocBase{
   DBHelper _dbHelper;
   bool brandStatus = true;
 
-  BrandBloc(this._dbHelper){
-  }
+  BrandBloc(this._dbHelper){}
 
   void dispose(){
     _outputOperationResult.close();
