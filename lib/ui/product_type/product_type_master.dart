@@ -70,6 +70,11 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
               ],
             );
           }
+          if (snapshot.hasData && snapshot.data.result == ResultResponseSalbang.SQFLITE_LOAD) {
+            return Center(child: CircularProgressIndicator(valueColor: const AlwaysStoppedAnimation<Color>(colorAccent),),);
+
+          }
+
           return new CustomScrollView(
             slivers: <Widget>[
               new SliverAppBar(
@@ -93,7 +98,7 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
                     return new SizedBox(
                         height: MediaQuery.of(context).size.height,
                         child: new Center(
-                          child: Text("Tidak Ada Data"),
+                          child: Text("Tidak Ada Data Pada Katalog Data"),
                         ));
                   },
                   childCount: 1,

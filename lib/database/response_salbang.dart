@@ -12,4 +12,5 @@ class ResultResponseSalbang{
   static int UPDATE_SQFLITE_FAIL = -2;
   static int GET_SQFLITE_SUCCESS = 3;
   static int GET_SQFLITE_FAIL = -3;
+  static int SQFLITE_LOAD = 0;
 }

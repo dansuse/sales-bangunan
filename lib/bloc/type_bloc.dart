@@ -43,6 +43,7 @@ class TypeBloc implements BlocBase{
   }
 
   void getTypesData() async{
+    _outputListDataTypes.add( ResponseSalbang(httpStatusCode: 101, result:ResultResponseSalbang.SQFLITE_LOAD, data: null ,errorMessage: 'Loading'));
     final ResponseSalbang<List<ProductType>> listDataTypes = await _dbHelper.getProductTypes();
     _outputListDataTypes.add(listDataTypes);
   }
