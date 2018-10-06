@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:rxdart/rxdart.dart';
 import 'package:salbang/database/database.dart';
+import 'package:salbang/database/response_salbang.dart';
 import 'package:salbang/model/button_state.dart';
 import 'package:salbang/model/product_size.dart';
 import 'package:salbang/provider/bloc_provider.dart';
@@ -70,20 +71,4 @@ class SizeBloc implements BlocBase{
     _outputSizeStatus.close();
 
   }
-}
-
-class ResponseSalbang<T>{
-  int httpStatusCode;
-  int result;
-  String errorMessage;
-  T data;
-  ResponseSalbang({this.httpStatusCode, this.result, this.data, this.errorMessage});
-}
-class ResultResponseSalbang{
-  static int INSERT_SIZE_SUCCESS = 1;
-  static int UPDATE_SIZE_SUCCESS = 2;
-  static int UPDATE_SIZE_FAIL = -2;
-  static int INSERT_SIZE_FAIL = -1;
-  static int GET_SIZE_SUCESS = 3;
-  static int GET_SIZE_FAIL = -3;
 }

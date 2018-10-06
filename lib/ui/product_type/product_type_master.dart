@@ -1,49 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:salbang/bloc/cupertino_picker_bloc.dart';
+import 'package:salbang/bloc/my_homepage_bloc.dart';
 import 'package:salbang/bloc/size_bloc.dart';
+import 'package:salbang/bloc/type_bloc.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/database/response_salbang.dart';
-import 'package:salbang/model/product_size.dart';
+import 'package:salbang/model/product_type.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/ui/product_size/data_product_size.dart';
-import 'package:salbang/ui/product_size/product_size_master_list.dart';
 import 'package:salbang/ui/product_size/product_size_settings.dart';
+import 'package:salbang/ui/product_type/product_type_add_layout.dart';
+import 'package:salbang/ui/product_type/product_type_master_list.dart';
+import 'package:salbang/ui/product_type/product_type_update_layout.dart';
 
-class ProductSizeMaster extends StatefulWidget {
+class ProductTypeMaster extends StatefulWidget {
   @override
-  _ProductSizeMasterState createState() => _ProductSizeMasterState();
+  _ProductTypeMasterState createState() => _ProductTypeMasterState();
 }
 
-class _ProductSizeMasterState extends State<ProductSizeMaster> {
-  SizeBloc _sizeBloc;
+class _ProductTypeMasterState extends State<ProductTypeMaster> {
+  TypeBloc _typeBloc;
 
   @override
   void initState() {
     super.initState();
-    _sizeBloc = SizeBloc(DBHelper());
+    _typeBloc = TypeBloc(DBHelper());
   }
 
   @override
   Widget build(BuildContext context) {
-    _sizeBloc.getSizesData();
+    _typeBloc.getTypesData();
     return Scaffold(
-      body: new StreamBuilder<ResponseSalbang<List<ProductSize>>>(
-        stream: _sizeBloc.outputListDataSizes,
+      body: new StreamBuilder<ResponseSalbang<List<ProductType>>>(
+        stream: _typeBloc.outputListDataTypes,
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data.result == ResultResponseSalbang.GET_SQFLITE_SUCCESS) {
             return new CustomScrollView(
               slivers: <Widget>[
                 new SliverAppBar(
                   backgroundColor: colorAppbar,
-                  title: new Text("Master Ukuran"),
+                  title: new Text("Master Tipe"),
                   actions: <Widget>[
                     new IconButton(
                         icon: new Icon(Icons.add),
                         color: colorButtonAdd,
                         onPressed: () {
-                          DataProductSize _dataProductSize = new DataProductSize(addMode: true, productSize: null);
                           NavigationUtil.navigateToAnyWhere(
-                            context, ProductSizeSettings(dataProductSize: _dataProductSize,),
+                            context, ProductTypeAddLayout(),
 
                           );
                         })
@@ -56,7 +60,7 @@ class _ProductSizeMasterState extends State<ProductSizeMaster> {
                         child: new GestureDetector(
                           onTap: () {},
                           child:
-                              new ProductSizeMasterList(snapshot.data.data[index]),
+                              new ProductTypeMasterList(snapshot.data.data[index]),
                         ),
                       );
                     },
@@ -70,15 +74,14 @@ class _ProductSizeMasterState extends State<ProductSizeMaster> {
             slivers: <Widget>[
               new SliverAppBar(
                 backgroundColor: colorAppbar,
-                title: new Text("Master Ukuran"),
+                title: new Text("Master Tipe"),
                 actions: <Widget>[
                   new IconButton(
                       icon: new Icon(Icons.add),
                       color: colorButtonAdd,
                       onPressed: () {
-                        DataProductSize _dataProductSize = new DataProductSize(addMode: true, productSize: null);
                         NavigationUtil.navigateToAnyWhere(
-                          context, ProductSizeSettings(dataProductSize: _dataProductSize,),
+                          context, ProductTypeAddLayout(),
 
                         );
                       })
