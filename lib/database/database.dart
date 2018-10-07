@@ -85,15 +85,26 @@ class DBHelper{
     }
   }
 
-  Future<Null> deleteBrand(int id)async{
-    final Database dbClient = await db;
-    final Map<String, dynamic> valueToBeUpdated = {
-      BrandTable.COLUMN_STATUS: 0,
-    };
-    dbClient.update(BrandTable.NAME, valueToBeUpdated, 
-        where: BrandTable.COLUMN_ID + ' = ?',
-        whereArgs: [id]
-    );
+  Future<ResponseDatabase> deleteBrand(int id)async{
+    try{
+      final Database dbClient = await db;
+      final Map<String, dynamic> valueToBeUpdated = {
+        BrandTable.COLUMN_STATUS: 0,
+      };
+      int rowAffected = 0;
+      rowAffected += await dbClient.update(BrandTable.NAME, valueToBeUpdated,
+          where: BrandTable.COLUMN_ID + ' = ?',
+          whereArgs: [id]
+      );
+
+      return ResponseDatabase(result: ResponseDatabase.SUCCESS,
+      message: 'Delete brand dengan id sukses');
+    }on DatabaseException catch(_){
+      return ResponseDatabase(
+        result: ResponseDatabase.ERROR_SHOULD_RETRY,
+        message: 'Terjadi error saat coba delete brand dan produk terkait dari database',
+      );
+    }
   }
 
   Future<ResponseDatabase<List<Brand>>> getBrands()async{

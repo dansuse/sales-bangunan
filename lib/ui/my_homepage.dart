@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/brand_bloc.dart';
 import 'package:salbang/bloc/my_homepage_bloc.dart';
+import 'package:salbang/bloc/product_bloc.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/drawer_items.dart';
 import 'package:salbang/drawer_list_data.dart';
@@ -52,8 +53,11 @@ class _MyHomePageState extends State<MyHomePage> {
         return new Product();
       case 1:
         return new BlocProvider<BrandBloc>(
-            child: new ProductBrandMaster(),
             bloc: BrandBloc(DBHelper()),
+            child: new BlocProvider<ProductBloc>(
+              bloc: ProductBloc(DBHelper()),
+              child: new ProductBrandMaster(),
+            ),
         );
       case 3:
         return new ProductMaster();
