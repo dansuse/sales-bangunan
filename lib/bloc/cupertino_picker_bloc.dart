@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:salbang/provider/bloc_provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:salbang/provider/bloc_provider.dart';
 class CupertinoPickerBloc implements BlocBase{
   final _inputSelectBrand = StreamController<int>();
   final _inputSelectType  = StreamController<int>();

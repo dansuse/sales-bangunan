@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:salbang/model/product_size.dart';
 import 'package:salbang/model/product_type.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
-import 'package:salbang/ui/product/product_settings.dart';
-import 'package:salbang/ui/product_type/product_type_add_layout.dart';
 import 'package:salbang/ui/product_type/product_type_update_layout.dart';
 
 class ProductTypeMasterList extends StatefulWidget {

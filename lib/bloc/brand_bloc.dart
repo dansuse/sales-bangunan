@@ -50,4 +50,20 @@ class BrandBloc extends BlocBase{
     _outputBrands.add(responseBrands);
     return;
   }
+
+  Future<ResponseDatabase> deleteBrand(int id)async{
+    final ResponseDatabase responseDatabase = await _dbHelper.deleteBrand(id);
+    if(responseDatabase.result == ResponseDatabase.SUCCESS){
+      await getBrands();
+    }
+    return responseDatabase;
+  }
+
+  void restoreBrand(Brand brand) async{
+    brand.status = 1;
+    final ResponseDatabase<Brand> responseBrand = await _dbHelper.insertOrUpdateBrand(brand);
+    if(responseBrand.result == ResponseDatabase.SUCCESS){
+      await getBrands();
+    }
+  }
 }
