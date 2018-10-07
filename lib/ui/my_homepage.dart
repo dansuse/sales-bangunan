@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/brand_bloc.dart';
 import 'package:salbang/bloc/my_homepage_bloc.dart';
@@ -52,17 +54,17 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0:
         return new Product();
       case 1:
-        return new BlocProvider<BrandBloc>(
-            bloc: BrandBloc(DBHelper()),
-            child: new BlocProvider<ProductBloc>(
-              bloc: ProductBloc(DBHelper()),
-              child: new ProductBrandMaster(),
-            ),
-        );
+        return Product();
       case 3:
         return new ProductMaster();
       case 4:
-        return new ProductBrandSettings();
+        return new BlocProvider<BrandBloc>(
+          bloc: BrandBloc(DBHelper()),
+          child: new BlocProvider<ProductBloc>(
+            bloc: ProductBloc(DBHelper()),
+            child: new ProductBrandMaster(),
+          ),
+        );
       case 5:
         return new ProductTypeMaster();
       case 6:
@@ -84,7 +86,27 @@ class _MyHomePageState extends State<MyHomePage> {
         height: 0.1,
       ));
     }
-    return new Scaffold(
+    Future<bool> _onWillPop() {
+      return showDialog(
+        context: context,
+        builder: (context) => new AlertDialog(
+          title: new Text('Pemberitahuan'),
+          content: new Text('Apakah Anda Yakin Ingin Keluar Dari Aplikasi?'),
+          actions: <Widget>[
+            new FlatButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: new Text('Tidak'),
+            ),
+            new FlatButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: new Text('Ya'),
+            ),
+          ],
+        ),
+      ) ?? false;
+    }
+    return new SafeArea(child: new WillPopScope(
+        child:new Scaffold(
       key: _key,
       appBar: new AppBar(
         backgroundColor: colorAppbar,
@@ -104,10 +126,10 @@ class _MyHomePageState extends State<MyHomePage> {
         child: new StreamBuilder<int>(
           stream: _myHomePageBloc.outputHomePageBody,
           builder: (context, snapshot) {
-              return _getDrawerItemWidget(snapshot.hasData ? snapshot.data : 1);
+            return _getDrawerItemWidget(snapshot.hasData ? snapshot.data : 0);
           },
         ),
       ),
-    );
+    ) ,onWillPop: _onWillPop), );
   }
 }

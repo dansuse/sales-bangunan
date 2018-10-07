@@ -5,6 +5,7 @@ import 'package:salbang/database/database.dart';
 import 'package:salbang/database/response_salbang.dart';
 import 'package:salbang/model/button_state.dart';
 import 'package:salbang/model/product_size.dart';
+import 'package:salbang/model/response_database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 
 class SizeBloc implements BlocBase{
@@ -25,8 +26,8 @@ class SizeBloc implements BlocBase{
   final PublishSubject<String> _outputOperationResult = new PublishSubject<String>();
   Observable<String> get outputOperationResult => _outputOperationResult.stream;
 
-  final PublishSubject<ResponseSalbang<List<ProductSize>>> _outputListDataSizes = new PublishSubject<ResponseSalbang<List<ProductSize>>>();
-  Observable<ResponseSalbang<List<ProductSize>>> get outputListDataSizes => _outputListDataSizes.stream;
+  final PublishSubject<ResponseDatabase<List<ProductSize>>> _outputListDataSizes = new PublishSubject<ResponseDatabase<List<ProductSize>>>();
+  Observable<ResponseDatabase<List<ProductSize>>> get outputListDataSizes => _outputListDataSizes.stream;
 
   DBHelper _dbHelper;
   bool sizeStatus = true;
@@ -43,7 +44,7 @@ class SizeBloc implements BlocBase{
   }
 
   void getSizesData() async{
-    final ResponseSalbang<List<ProductSize>> listDataSizes = await _dbHelper.getProductSizes();
+    final ResponseDatabase<List<ProductSize>> listDataSizes = await _dbHelper.getProductSizes();
     _outputListDataSizes.add(listDataSizes);
   }
 
@@ -51,17 +52,17 @@ class SizeBloc implements BlocBase{
     print(sizeName);
     _outputButtonInsertSizeState.add(ButtonState.LOADING);
     final ProductSize size = new ProductSize(sizeName, status: sizeStatus ? 1 : 0);
-    final ProductSize insertedProductSize = await _dbHelper.insertOrUpdateSize(size);
+    final ResponseDatabase<ProductSize> insertedProductSize = await _dbHelper.insertOrUpdateSize(size);
     _outputButtonInsertSizeState.add(ButtonState.IDLE);
-    _outputOperationResult.add(insertedProductSize.name + ' dengan id "' + insertedProductSize.id.toString() + '" berhasil ditambahkan');
+    _outputOperationResult.add(insertedProductSize.data.name + ' dengan id "' + insertedProductSize.data.id.toString() + '" berhasil ditambahkan');
   }
 
   void updateSize(ProductSize productSize) async{
     _outputButtonInsertSizeState.add(ButtonState.LOADING);
     final ProductSize size = new ProductSize(productSize.name, id: productSize.id, status: productSize.status);
-    final ProductSize insertedProductSize = await _dbHelper.insertOrUpdateSize(size);
+    final ResponseDatabase<ProductSize> insertedProductSize = await _dbHelper.insertOrUpdateSize(size);
     _outputButtonInsertSizeState.add(ButtonState.IDLE);
-    _outputOperationResult.add(insertedProductSize.name + ' dengan id "' + insertedProductSize.id.toString() + '" berhasil diubah');
+    _outputOperationResult.add(insertedProductSize.data.name + ' dengan id "' + insertedProductSize.data.id.toString() + '" berhasil diubah');
   }
 
   @override

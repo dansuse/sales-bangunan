@@ -1,11 +1,11 @@
 
 
 class BrandTable{
-  static const String NAME = 'brand';
-  static const String COLUMN_ID = 'id';
-  static const String COLUMN_NAME = 'name';
-  static const String COLUMN_DESCRIPTION = 'description';
-  static const String COLUMN_STATUS = 'status';
+  static String NAME = 'brand';
+  static String COLUMN_ID = 'id';
+  static String COLUMN_NAME = 'name';
+  static String COLUMN_DESCRIPTION = 'description';
+  static String COLUMN_STATUS = 'status';
 
   static String getCreateTableQuery(){
     return 'CREATE TABLE '
