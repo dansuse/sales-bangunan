@@ -7,14 +7,15 @@ import 'package:salbang/database/database.dart';
 import 'package:salbang/model/button_state.dart';
 import 'package:salbang/model/product_size.dart';
 import 'package:salbang/resources/colors.dart';
-import 'package:salbang/ui/product_size/data_product_size.dart';
 
-class ProductSizeAddLayout extends StatefulWidget {
+class ProductSizeUpdateLayout extends StatefulWidget {
+  ProductSize productSize;
+  ProductSizeUpdateLayout({this.productSize});
   @override
-  _ProductSizeAddLayoutState createState() => _ProductSizeAddLayoutState();
+  _ProductSizeUpdateLayoutState createState() => _ProductSizeUpdateLayoutState();
 }
 
-class _ProductSizeAddLayoutState extends State<ProductSizeAddLayout> {
+class _ProductSizeUpdateLayoutState extends State<ProductSizeUpdateLayout> {
   GlobalKey<ScaffoldState> _key = new GlobalKey<ScaffoldState>();
   final _keyFormInsertSize = GlobalKey<FormState>();
   TextEditingController _inputSizeNameController;
@@ -25,6 +26,7 @@ class _ProductSizeAddLayoutState extends State<ProductSizeAddLayout> {
   void initState() {
     super.initState();
     _inputSizeNameController = TextEditingController();
+    _inputSizeNameController.text = widget.productSize.name;
     _sizeBloc = SizeBloc(DBHelper());
   }
 
@@ -42,8 +44,8 @@ class _ProductSizeAddLayoutState extends State<ProductSizeAddLayout> {
     }
     _blocOperationSubscription =
         _sizeBloc.outputOperationResult.listen((String message) {
-      _key.currentState.showSnackBar(SnackBar(content: Text(message)));
-    });
+          _key.currentState.showSnackBar(SnackBar(content: Text(message)));
+        });
 
     return new SafeArea(
       child: new Scaffold(
@@ -51,7 +53,7 @@ class _ProductSizeAddLayoutState extends State<ProductSizeAddLayout> {
         appBar: new AppBar(
           backgroundColor: colorAppbar,
           elevation: 0.0,
-          title: new Text("Input Ukuran")
+          title: new Text("Ubah Ukuran"),
         ),
         body: new Container(
           padding: const EdgeInsets.all(16.0),
@@ -80,24 +82,42 @@ class _ProductSizeAddLayoutState extends State<ProductSizeAddLayout> {
                     const SizedBox(
                       height: 8.0,
                     ),
+                    new Row(
+                      children: <Widget>[
+                        StreamBuilder<bool>(
+                            stream: _sizeBloc.outputSizeStatus,
+                            initialData: widget.productSize.status == 1? true : false,
+                            builder: (context, snapshot) => new Checkbox(
+                              activeColor: colorButtonAdd,
+                              value: snapshot.data,
+                              onChanged: (bool newStatus) {
+                                newStatus ? widget.productSize.status = 1 : widget.productSize.status = 0;
+                                _sizeBloc.inputSizeStatus
+                                    .add(newStatus);
+                              },
+                            )),
+                        Expanded(
+                          child: new Text("Status Aktif Ukuran"),
+                        )
+                      ],
+                    ),
                     StreamBuilder<ButtonState>(
                       stream: _sizeBloc.outputButtonInsertSizeState,
                       initialData: ButtonState.IDLE,
                       builder: (context, snapshot) => new RaisedButton(
-                            child: snapshot.data == ButtonState.IDLE
-                                ? new Text('Tambahkan' )
-                                : const Text('PROCESSING'),
-                            onPressed: snapshot.data == ButtonState.IDLE
-                                ? () {
-                                    if (_keyFormInsertSize.currentState
-                                        .validate()) {
-                                      _sizeBloc.inputInsertSize.add(
-                                          _inputSizeNameController.text
-                                              .toString());
-                                    }
-                                  }
-                                : null,
-                          ),
+                        child: snapshot.data == ButtonState.IDLE
+                            ? new Text('Ubah')
+                            : const Text('PROCESSING'),
+                        onPressed: snapshot.data == ButtonState.IDLE
+                            ? () {
+                          if (_keyFormInsertSize.currentState
+                              .validate()) {
+                            widget.productSize.name = _inputSizeNameController.text.toString();
+                            _sizeBloc.inputUpdateSize.add(widget.productSize);
+                          }
+                        }
+                            : null,
+                      ),
                     ),
                   ],
                 ),

@@ -1,22 +1,48 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:salbang/bloc/brand_bloc.dart';
 import 'package:salbang/bloc/cupertino_picker_bloc.dart';
+import 'package:salbang/cupertino_data.dart';
+import 'package:salbang/database/database.dart';
+import 'package:salbang/model/response_database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/currency_input_formatter.dart';
+import 'package:salbang/resources/string_constant.dart';
 
 const List<String> coolColorNames = <String>[
-  'Sarcoline', 'Coquelicot', 'Smaragdine', 'Mikado', 'Glaucous', 'Wenge',
-  'Fulvous', 'Xanadu', 'Falu', 'Eburnean', 'Amaranth', 'Australien',
-  'Banan', 'Falu', 'Gingerline', 'Incarnadine', 'Labrador', 'Nattier',
-  'Pervenche', 'Sinoper', 'Verditer', 'Watchet', 'Zaffre',
+  'Sarcoline',
+  'Coquelicot',
+  'Smaragdine',
+  'Mikado',
+  'Glaucous',
+  'Wenge',
+  'Fulvous',
+  'Xanadu',
+  'Falu',
+  'Eburnean',
+  'Amaranth',
+  'Australien',
+  'Banan',
+  'Falu',
+  'Gingerline',
+  'Incarnadine',
+  'Labrador',
+  'Nattier',
+  'Pervenche',
+  'Sinoper',
+  'Verditer',
+  'Watchet',
+  'Zaffre',
 ];
 const double _kPickerSheetHeight = 216.0;
 const double _kPickerItemHeight = 32.0;
+
 class ProductSettings extends StatefulWidget {
-  bool addMode;
-  ProductSettings({this.addMode});
+  ProductSettings();
   @override
   _ProductSettingsState createState() => _ProductSettingsState();
 }
@@ -27,6 +53,7 @@ class _ProductSettingsState extends State<ProductSettings> {
   TextEditingController _inputProductDescriptionController;
   TextEditingController _inputProductSizeController;
   bool _statusEnabled = false;
+  CupertinoPickerBloc _cupertinoPickerBloc;
   @override
   void initState() {
     super.initState();
@@ -34,6 +61,7 @@ class _ProductSettingsState extends State<ProductSettings> {
     _inputProductPriceController = TextEditingController();
     _inputProductDescriptionController = TextEditingController();
     _inputProductSizeController = TextEditingController();
+    _cupertinoPickerBloc = CupertinoPickerBloc(DBHelper());
   }
 
   @override
@@ -43,17 +71,18 @@ class _ProductSettingsState extends State<ProductSettings> {
     _inputProductPriceController.dispose();
     _inputProductDescriptionController.dispose();
     _inputProductSizeController.dispose();
+    _cupertinoPickerBloc.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    print("- build product setting");
-
-    CupertinoPickerBloc _cupertinoPickerBloc;
+    _cupertinoPickerBloc.GetBrandsStatusActive();
+    _cupertinoPickerBloc.GetSizesStatusActive();
+    _cupertinoPickerBloc.GetTypesStatusActive();
     Widget listContain(BuildContext context) {
       return new Container(
-          width: MediaQuery.of(context).size.width/2,
-          child : new Card(
+          width: MediaQuery.of(context).size.width / 2,
+          child: new Card(
             elevation: 0.0,
             child: new Column(
               children: <Widget>[
@@ -65,41 +94,45 @@ class _ProductSettingsState extends State<ProductSettings> {
                 ),
               ],
             ),
-          )
-      );
+          ));
     }
+
     Widget listCamera(BuildContext context) {
       return new Container(
-        width: MediaQuery.of(context).size.width/2,
+        width: MediaQuery.of(context).size.width / 2,
         child: new Card(
           elevation: 0.0,
           child: new Column(
             children: <Widget>[
               new Expanded(
-                child : new IconButton(icon: new Icon(Icons.add), onPressed: null),
+                child:
+                    new IconButton(icon: new Icon(Icons.add), onPressed: null),
               ),
             ],
           ),
         ),
       );
     }
+
     Widget horizontalList = new ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: 5,
         itemBuilder: (context, position) {
-          return position == 0 ? Column(
-            children: <Widget>[
-              new Expanded(
-                child: listCamera(context),
-              ),
-            ],
-          ): Column(
-            children: <Widget>[
-              new Expanded(
-                child: listContain(context),
-              ),
-            ],
-          );
+          return position == 0
+              ? Column(
+                  children: <Widget>[
+                    new Expanded(
+                      child: listCamera(context),
+                    ),
+                  ],
+                )
+              : Column(
+                  children: <Widget>[
+                    new Expanded(
+                      child: listContain(context),
+                    ),
+                  ],
+                );
         });
     final Widget checkBoxSection = new Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -122,22 +155,27 @@ class _ProductSettingsState extends State<ProductSettings> {
     );
     int _selectedColorIndex = 0;
 
-    Widget _buildColorPicker() {
+    Widget _buildColorPicker(List<CupertinoData> data, StreamSink<int> sinker) {
       final FixedExtentScrollController scrollController =
-      FixedExtentScrollController(initialItem: _selectedColorIndex);
-      print("_buildColorPicker");
+          FixedExtentScrollController(initialItem: _selectedColorIndex);
       return CupertinoPicker(
-          scrollController: scrollController,
-          itemExtent: _kPickerItemHeight,
-          backgroundColor: CupertinoColors.white,
-          onSelectedItemChanged: (int index) { _cupertinoPickerBloc.inputSelectBrand.add(index);
-
+        scrollController: scrollController,
+        itemExtent: _kPickerItemHeight,
+        backgroundColor: CupertinoColors.white,
+        onSelectedItemChanged: (int index) {
+          sinker.add(index);
+        },
+        children: List<Widget>.generate(
+          data.length,
+          (int index) {
+            return new GestureDetector(
+              child:Center(
+                child: Text(data[index].information),
+              ),
+              onTap: (){print("masukgoal -> " + index.toString());sinker.add(index);},
+            );
           },
-          children: List<Widget>.generate(coolColorNames.length, (int index) {
-        return Center(child:
-        Text(coolColorNames[index]),
-        );
-      }),
+        ),
       );
     }
 
@@ -152,7 +190,9 @@ class _ProductSettingsState extends State<ProductSettings> {
           ),
           child: GestureDetector(
             // Blocks taps from propagating to the modal sheet and popping.
-            onTap: () {print("picker pop");Navigator.pop(context);},
+            onTap: () {
+              Navigator.pop(context);
+            },
             child: SafeArea(
               child: picker,
             ),
@@ -191,22 +231,23 @@ class _ProductSettingsState extends State<ProductSettings> {
       );
     }
 
-    _cupertinoPickerBloc = BlocProvider.of<CupertinoPickerBloc>(context);
     return new SafeArea(
-      child: new Scaffold(
+        child: new Scaffold(
       appBar: new AppBar(
         backgroundColor: colorAppbar,
         elevation: 0.0,
-        title: widget.addMode ? new Text("Input Produk") : new Text("Ubah Produk"),
+        title: new Text("Input Produk"),
       ),
       body: new CustomScrollView(
-          shrinkWrap : true,
+        shrinkWrap: true,
         slivers: <Widget>[
           new SliverList(
             delegate: SliverChildBuilderDelegate(
-                  (context, index) => Container(
-                  height: MediaQuery.of(context).orientation == Orientation.portrait? MediaQuery.of(context).size.height / 4 :
-                  MediaQuery.of(context).size.height / 2 ,
+              (context, index) => Container(
+                  height:
+                      MediaQuery.of(context).orientation == Orientation.portrait
+                          ? MediaQuery.of(context).size.height / 4
+                          : MediaQuery.of(context).size.height / 2,
                   child: Column(
                     children: <Widget>[
                       new SizedBox(
@@ -223,8 +264,8 @@ class _ProductSettingsState extends State<ProductSettings> {
                         ),
                       ),
                       new Expanded(
-                            child: horizontalList,
-                          ),
+                        child: horizontalList,
+                      ),
                     ],
                   )),
               childCount: 1,
@@ -232,7 +273,7 @@ class _ProductSettingsState extends State<ProductSettings> {
           ),
           new SliverList(
             delegate: SliverChildBuilderDelegate(
-                  (context, index) => Container(
+              (context, index) => Container(
                     padding: const EdgeInsets.all(16.0),
                     child: new Column(
                       children: <Widget>[
@@ -242,8 +283,8 @@ class _ProductSettingsState extends State<ProductSettings> {
                             border: UnderlineInputBorder(
                                 borderSide: BorderSide(color: colorBlack)),
                             labelText: 'Nama Produk',
-                            contentPadding:
-                            EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 4.0, horizontal: 0.0),
                           ),
                         ),
                         const SizedBox(
@@ -261,8 +302,8 @@ class _ProductSettingsState extends State<ProductSettings> {
                                 borderSide: BorderSide(color: colorBlack)),
                             labelText: 'Harga Produk',
                             prefix: Text('Rp. '),
-                            contentPadding:
-                            EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 4.0, horizontal: 0.0),
                           ),
                         ),
                         const SizedBox(
@@ -275,114 +316,196 @@ class _ProductSettingsState extends State<ProductSettings> {
                             border: UnderlineInputBorder(
                                 borderSide: BorderSide(color: colorBlack)),
                             labelText: 'Deskripsi Produk',
-                            contentPadding:
-                            EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 4.0, horizontal: 0.0),
                           ),
+                        ),
+                        new StreamBuilder<
+                            ResponseDatabase<List<CupertinoData>>>(
+                          stream: _cupertinoPickerBloc.outputGetTypes,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              if (snapshot.data.result ==
+                                  ResponseDatabase.SUCCESS ||
+                                  snapshot.data.result ==
+                                      ResponseDatabase.SUCCESS_EMPTY) {
+                                return new GestureDetector(
+                                  onTap: () async{
+                                    await showCupertinoModalPopup<void>(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return _buildBottomPicker(
+                                            _buildColorPicker(snapshot.data.data,_cupertinoPickerBloc.inputSelectType));
+                                      },
+                                    );},
+                                  child: _buildMenu(<Widget>[
+                                    const Text('Tipe'),
+                                    new StreamBuilder<CupertinoData>(
+                                      stream: _cupertinoPickerBloc.outputSelectType,
+                                      builder: (context, snapshotData) {
+                                        return Text(
+                                          snapshotData.hasData
+                                              ? snapshotData.data.information
+                                              : snapshot.data.data[0].information,
+                                          style: const TextStyle(
+                                              color: CupertinoColors.inactiveGray),
+                                        );
+                                      },
+                                    ),
+                                  ]),
+                                );
+                              } else if (snapshot.data.result ==
+                                  ResponseDatabase.ERROR_SHOULD_RETRY) {
+                                return RaisedButton(
+                                  child: const Text(
+                                      StringConstant.MESSAGE_TAP_TO_RETRY),
+                                  onPressed: () {
+                                    _cupertinoPickerBloc
+                                        .GetTypesStatusActive();
+                                  },
+                                );
+                              }
+                            }
+                            return new Container();
+                          },
                         ),
                         const SizedBox(
                           height: 8.0,
                         ),
-                        GestureDetector(
-                          onTap: () async {
-                            await showCupertinoModalPopup<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return _buildBottomPicker(_buildColorPicker());
-                              },
-                            );
-                          },
-                          child: _buildMenu(
-                              <Widget>[
-                                const Text('Merk'),
-                                new StreamBuilder<int>(
-                                  stream: _cupertinoPickerBloc.outputSelectBrand,
-                                  builder: (context, snapshot) {
-                                    return Text(snapshot.hasData ?  coolColorNames[snapshot.data] : coolColorNames[0],  style: const TextStyle(
-                                        color: CupertinoColors.inactiveGray
-                                    ),);
+                        new StreamBuilder<
+                            ResponseDatabase<List<CupertinoData>>>(
+                          stream: _cupertinoPickerBloc.outputGetBrands,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              if (snapshot.data.result ==
+                                      ResponseDatabase.SUCCESS ||
+                                  snapshot.data.result ==
+                                      ResponseDatabase.SUCCESS_EMPTY) {
+                                return new GestureDetector(
+                                  onTap: () async{
+                                      await showCupertinoModalPopup<void>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return _buildBottomPicker(
+                                          _buildColorPicker(snapshot.data.data, _cupertinoPickerBloc.inputSelectBrand));
+                                    },
+                                  );},
+                                  child: _buildMenu(<Widget>[
+                                    const Text('Merk'),
+                                    new StreamBuilder<CupertinoData>(
+                                      stream: _cupertinoPickerBloc.outputSelectBrand,
+                                      builder: (context, snapshotData) {
+                                        return Text(
+                                          snapshotData.hasData
+                                              ? snapshotData.data.information
+                                              : snapshot.data.data[0].information,
+                                          style: const TextStyle(
+                                              color: CupertinoColors.inactiveGray),
+                                        );
+                                      },
+                                    ),
+                                  ]),
+                                );
+                              } else if (snapshot.data.result ==
+                                  ResponseDatabase.ERROR_SHOULD_RETRY) {
+                                return RaisedButton(
+                                  child: const Text(
+                                      StringConstant.MESSAGE_TAP_TO_RETRY),
+                                  onPressed: () {
+                                    _cupertinoPickerBloc
+                                        .GetBrandsStatusActive();
                                   },
-                                ),
-
-                              ]
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 8.0,
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            await showCupertinoModalPopup<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return _buildBottomPicker(_buildColorPicker());
-                              },
-                            );
+                                );
+                              }
+                            }
+                            return new Container();
                           },
-                          child: _buildMenu(
-                              <Widget>[
-                                const Text('Tipe'),
-                                new StreamBuilder<int>(
-                                  stream: _cupertinoPickerBloc.outputSelectBrand,
-                                  builder: (context, snapshot) {
-                                    return Text(snapshot.hasData ?  coolColorNames[snapshot.data] : coolColorNames[0],  style: const TextStyle(
-                                        color: CupertinoColors.inactiveGray
-                                    ),);
-                                  },
-                                ),
-
-                              ]
-                          ),
                         ),
                         const SizedBox(
                           height: 8.0,
                         ),
                         new Row(
                           children: <Widget>[
-                            new Expanded(flex : 4,child: new TextFormField(
-                              controller: _inputProductNameController,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: colorBlack)),
-                                labelText: 'Ukuran Produk',
-                                contentPadding:
-                                EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
+                            new Expanded(
+                              flex: 4,
+                              child: new TextFormField(
+                                controller: _inputProductNameController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  border: UnderlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: colorBlack)),
+                                  labelText: 'Ukuran Produk',
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 0.0, horizontal: 0.0),
+                                ),
                               ),
-
-                            ),),
-                            const SizedBox(width: 4.0,),
-                            new Expanded(flex :2, child: FlatButton(
-                              onPressed: () async {
-                                await showCupertinoModalPopup<void>(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return _buildBottomPicker(_buildColorPicker());
-                                  },
-                                );
-                              },
-                              child:
-                                    new StreamBuilder<int>(
-                                      stream: _cupertinoPickerBloc.outputSelectBrand,
-                                      builder: (context, snapshot) {
-                                        return Text(snapshot.hasData ?  coolColorNames[snapshot.data] : coolColorNames[0],  style: const TextStyle(
-                                            color: CupertinoColors.inactiveGray
-                                        ),overflow: TextOverflow.fade,softWrap: false,textAlign: TextAlign.center,);
+                            ),
+                            const SizedBox(
+                              width: 4.0,
+                            ),
+                            new StreamBuilder<
+                                ResponseDatabase<List<CupertinoData>>>(
+                              stream: _cupertinoPickerBloc.outputGetSizes,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  if (snapshot.data.result ==
+                                      ResponseDatabase.SUCCESS ||
+                                      snapshot.data.result ==
+                                          ResponseDatabase.SUCCESS_EMPTY) {
+                                    return new Expanded(
+                                      flex: 2,
+                                      child: FlatButton(
+                                        onPressed: () async {
+                                          await showCupertinoModalPopup<void>(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return _buildBottomPicker(
+                                                  _buildColorPicker(snapshot.data.data, _cupertinoPickerBloc.inputSelectSize));
+                                            },
+                                          );
+                                        },
+                                        child: new StreamBuilder<CupertinoData>(
+                                          stream:
+                                          _cupertinoPickerBloc.outputSelectSize,
+                                          builder: (context, snapshotData) {
+                                            return Text(
+                                              snapshotData.hasData
+                                                  ? snapshotData.data.information
+                                                  : snapshot.data.data[0].information,
+                                              style: const TextStyle(
+                                                  color: CupertinoColors.inactiveGray,),
+                                              overflow: TextOverflow.fade,
+                                              softWrap: false,
+                                              textAlign: TextAlign.right,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  } else if (snapshot.data.result ==
+                                      ResponseDatabase.ERROR_SHOULD_RETRY) {
+                                    return RaisedButton(
+                                      child: const Text(
+                                          StringConstant.MESSAGE_TAP_TO_RETRY),
+                                      onPressed: () {
+                                        _cupertinoPickerBloc
+                                            .GetBrandsStatusActive();
                                       },
-                                    ),
-
-
-
-                            ),),
-
+                                    );
+                                  }
+                                }
+                                return new Container();
+                              },
+                            ),
                           ],
                         ),
-                        widget.addMode
-                            ?new Container() : checkBoxSection,
+                        checkBoxSection,
                         const SizedBox(
                           height: 8.0,
                         ),
                         new RaisedButton(
-                          child: const Text('OK'),
+                          child: const Text('Tambahkan'),
                           onPressed: () {},
                         ),
                       ],

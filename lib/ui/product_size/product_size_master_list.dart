@@ -4,6 +4,7 @@ import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/ui/product_size/data_product_size.dart';
 import 'package:salbang/ui/product_size/product_size_settings.dart';
+import 'package:salbang/ui/product_size/product_size_update_layout.dart';
 
 class ProductSizeMasterList extends StatefulWidget {
   final ProductSize productSize;
@@ -29,9 +30,8 @@ class _ProductSizeMasterListState extends State<ProductSizeMasterList> {
           widget.productSize.status == 1 ? new IconButton(
             icon: new Icon(Icons.edit),
             onPressed: () {
-              final DataProductSize _dataProductSize = new DataProductSize(addMode: false, productSize: widget.productSize);
               NavigationUtil.navigateToAnyWhere(
-                context, ProductSizeSettings(dataProductSize: _dataProductSize,),);
+                context, ProductSizeUpdateLayout(productSize: widget.productSize,),);
             },
             color: colorEdit,
           ) : new Container(),

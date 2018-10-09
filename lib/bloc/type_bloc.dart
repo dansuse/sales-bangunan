@@ -5,6 +5,7 @@ import 'package:salbang/database/database.dart';
 import 'package:salbang/database/response_salbang.dart';
 import 'package:salbang/model/button_state.dart';
 import 'package:salbang/model/product_type.dart';
+import 'package:salbang/model/response_database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 
 class TypeBloc implements BlocBase{
@@ -25,8 +26,8 @@ class TypeBloc implements BlocBase{
   final PublishSubject<String> _outputOperationResult = new PublishSubject<String>();
   Observable<String> get outputOperationResult => _outputOperationResult.stream;
 
-  final PublishSubject<ResponseSalbang<List<ProductType>>> _outputListDataTypes = new PublishSubject<ResponseSalbang<List<ProductType>>>();
-  Observable<ResponseSalbang<List<ProductType>>> get outputListDataTypes => _outputListDataTypes.stream;
+  final PublishSubject<ResponseDatabase<List<ProductType>>> _outputListDataTypes = new PublishSubject<ResponseDatabase<List<ProductType>>>();
+  Observable<ResponseDatabase<List<ProductType>>> get outputListDataTypes => _outputListDataTypes.stream;
 
   DBHelper _dbHelper;
   bool typeStatus = true;
@@ -43,8 +44,8 @@ class TypeBloc implements BlocBase{
   }
 
   void getTypesData() async{
-    _outputListDataTypes.add( ResponseSalbang(httpStatusCode: 101, result:ResultResponseSalbang.SQFLITE_LOAD, data: null ,errorMessage: 'Loading'));
-    final ResponseSalbang<List<ProductType>> listDataTypes = await _dbHelper.getProductTypes();
+    _outputListDataTypes.add( ResponseDatabase(result: ResponseDatabase.LOADING, data: null ,message: 'Loading'));
+    final ResponseDatabase<List<ProductType>> listDataTypes = await _dbHelper.getProductTypes();
     _outputListDataTypes.add(listDataTypes);
   }
 
@@ -52,17 +53,17 @@ class TypeBloc implements BlocBase{
     print(typeName);
     _outputButtonInsertTypeState.add(ButtonState.LOADING);
     final ProductType type = new ProductType(name : typeName, status: typeStatus ? 1 : 0);
-    final ProductType insertedProductType = await _dbHelper.insertOrUpdateType(type);
+    final  ResponseDatabase<ProductType> insertedProductType = await _dbHelper.insertOrUpdateType(type);
     _outputButtonInsertTypeState.add(ButtonState.IDLE);
-    _outputOperationResult.add(insertedProductType.name + ' dengan id "' + insertedProductType.id.toString() + '" berhasil ditambahkan');
+    _outputOperationResult.add(insertedProductType.data.name + ' dengan id "' + insertedProductType.data.id.toString() + '" berhasil ditambahkan');
   }
 
   void updateType(ProductType productType) async{
     _outputButtonInsertTypeState.add(ButtonState.LOADING);
     final ProductType type = new ProductType(name : productType.name, id: productType.id, status: productType.status);
-    final ProductType insertedProductType = await _dbHelper.insertOrUpdateType(type);
+    final  ResponseDatabase<ProductType> insertedProductType = await _dbHelper.insertOrUpdateType(type);
     _outputButtonInsertTypeState.add(ButtonState.IDLE);
-    _outputOperationResult.add(insertedProductType.name + ' dengan id "' + insertedProductType.id.toString() + '" berhasil diubah');
+    _outputOperationResult.add(insertedProductType.data.name + ' dengan id "' + insertedProductType.data.id.toString() + '" berhasil diubah');
   }
 
   @override

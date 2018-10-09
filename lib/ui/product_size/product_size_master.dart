@@ -3,6 +3,7 @@ import 'package:salbang/bloc/size_bloc.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/database/response_salbang.dart';
 import 'package:salbang/model/product_size.dart';
+import 'package:salbang/model/response_database.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/ui/product_size/data_product_size.dart';
@@ -27,10 +28,10 @@ class _ProductSizeMasterState extends State<ProductSizeMaster> {
   Widget build(BuildContext context) {
     _sizeBloc.getSizesData();
     return Scaffold(
-      body: new StreamBuilder<ResponseSalbang<List<ProductSize>>>(
+      body: new StreamBuilder<ResponseDatabase<List<ProductSize>>>(
         stream: _sizeBloc.outputListDataSizes,
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data.result == ResultResponseSalbang.GET_SQFLITE_SUCCESS) {
+          if (snapshot.hasData && (snapshot.data.result == ResponseDatabase.SUCCESS || snapshot.data.result == ResponseDatabase.SUCCESS_EMPTY)) {
             return new CustomScrollView(
               slivers: <Widget>[
                 new SliverAppBar(
@@ -41,9 +42,8 @@ class _ProductSizeMasterState extends State<ProductSizeMaster> {
                         icon: new Icon(Icons.add),
                         color: colorButtonAdd,
                         onPressed: () {
-                          DataProductSize _dataProductSize = new DataProductSize(addMode: true, productSize: null);
                           NavigationUtil.navigateToAnyWhere(
-                            context, ProductSizeSettings(dataProductSize: _dataProductSize,),
+                            context, ProductSizeAddLayout(),
 
                           );
                         })
@@ -78,7 +78,7 @@ class _ProductSizeMasterState extends State<ProductSizeMaster> {
                       onPressed: () {
                         DataProductSize _dataProductSize = new DataProductSize(addMode: true, productSize: null);
                         NavigationUtil.navigateToAnyWhere(
-                          context, ProductSizeSettings(dataProductSize: _dataProductSize,),
+                          context, ProductSizeAddLayout(),
 
                         );
                       })

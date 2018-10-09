@@ -63,7 +63,6 @@ class _ProductBrandSettingsState extends State<ProductBrandSettings> {
     return new SafeArea(
       child: new Scaffold(
         key: _keyScaffold,
-        resizeToAvoidBottomPadding: false,
         body: new Container(
           padding: const EdgeInsets.all(16.0),
           child: new ListView(

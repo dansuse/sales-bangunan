@@ -3,6 +3,7 @@ import 'package:salbang/bloc/type_bloc.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/database/response_salbang.dart';
 import 'package:salbang/model/product_type.dart';
+import 'package:salbang/model/response_database.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/ui/product_type/product_type_add_layout.dart';
@@ -26,10 +27,18 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
   Widget build(BuildContext context) {
     _typeBloc.getTypesData();
     return Scaffold(
-      body: new StreamBuilder<ResponseSalbang<List<ProductType>>>(
+      body: new StreamBuilder<ResponseDatabase<List<ProductType>>>(
         stream: _typeBloc.outputListDataTypes,
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data.result == ResultResponseSalbang.GET_SQFLITE_SUCCESS) {
+          if (snapshot.hasData &&
+              snapshot.data.result == ResponseDatabase.LOADING) {
+            return Center(
+              child: CircularProgressIndicator(
+                valueColor: const AlwaysStoppedAnimation<Color>(colorAccent),
+              ),
+            );
+          } else if (snapshot.hasData &&
+              snapshot.data.result == ResponseDatabase.SUCCESS) {
             return new CustomScrollView(
               slivers: <Widget>[
                 new SliverAppBar(
@@ -41,8 +50,8 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
                         color: colorButtonAdd,
                         onPressed: () {
                           NavigationUtil.navigateToAnyWhere(
-                            context, ProductTypeAddLayout(),
-
+                            context,
+                            ProductTypeAddLayout(),
                           );
                         })
                   ],
@@ -53,8 +62,8 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
                       return new Container(
                         child: new GestureDetector(
                           onTap: () {},
-                          child:
-                              new ProductTypeMasterList(snapshot.data.data[index]),
+                          child: new ProductTypeMasterList(
+                              snapshot.data.data[index]),
                         ),
                       );
                     },
@@ -63,12 +72,36 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
                 ),
               ],
             );
+          } else if (snapshot.hasData &&
+              snapshot.data.result == ResponseDatabase.SUCCESS_EMPTY) {
+            return new CustomScrollView(
+              slivers: <Widget>[
+                new SliverAppBar(
+                  backgroundColor: colorAppbar,
+                  title: new Text("Master Tipe"),
+                  actions: <Widget>[
+                    new IconButton(
+                        icon: new Icon(Icons.add),
+                        color: colorButtonAdd,
+                        onPressed: () {
+                          NavigationUtil.navigateToAnyWhere(
+                            context,
+                            ProductTypeAddLayout(),
+                          );
+                        })
+                  ],
+                ),
+                new SliverList(
+                  delegate: new SliverChildBuilderDelegate(
+                    (BuildContext context, int index) {
+                      return Center(child: Text("Tidak Ada Data Tipe Produk"));
+                    },
+                    childCount: 1,
+                  ),
+                ),
+              ],
+            );
           }
-          if (snapshot.hasData && snapshot.data.result == ResultResponseSalbang.SQFLITE_LOAD) {
-            return Center(child: CircularProgressIndicator(valueColor: const AlwaysStoppedAnimation<Color>(colorAccent),),);
-
-          }
-
           return new CustomScrollView(
             slivers: <Widget>[
               new SliverAppBar(
@@ -80,8 +113,8 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
                       color: colorButtonAdd,
                       onPressed: () {
                         NavigationUtil.navigateToAnyWhere(
-                          context, ProductTypeAddLayout(),
-
+                          context,
+                          ProductTypeAddLayout(),
                         );
                       })
                 ],
@@ -92,7 +125,7 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
                     return new SizedBox(
                         height: MediaQuery.of(context).size.height,
                         child: new Center(
-                          child: Text("Tidak Ada Data Pada Katalog Data"),
+                          child: Text("Tidak Ada Data"),
                         ));
                   },
                   childCount: 1,

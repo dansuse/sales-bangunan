@@ -28,10 +28,7 @@ class _ProductMasterListState extends State<ProductMasterList> {
               icon: new Icon(Icons.edit),
               onPressed: () {
                 NavigationUtil.navigateToAnyWhere(
-                  context, BlocProvider<CupertinoPickerBloc>(
-                  bloc: CupertinoPickerBloc(),
-                  child: ProductSettings(addMode: false),
-                ),);
+                  context,  ProductSettings(),);
               },
               color: colorEdit,
             ),
