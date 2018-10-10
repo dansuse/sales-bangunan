@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/size_bloc.dart';
-import 'package:salbang/database/database.dart';
-import 'package:salbang/database/response_salbang.dart';
 import 'package:salbang/model/product_size.dart';
 import 'package:salbang/model/response_database.dart';
+import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/ui/product_size/data_product_size.dart';
@@ -21,11 +20,11 @@ class _ProductSizeMasterState extends State<ProductSizeMaster> {
   @override
   void initState() {
     super.initState();
-    _sizeBloc = SizeBloc(DBHelper());
   }
 
   @override
   Widget build(BuildContext context) {
+    _sizeBloc = BlocProvider.of<SizeBloc>(context);
     _sizeBloc.getSizesData();
     return Scaffold(
       body: new StreamBuilder<ResponseDatabase<List<ProductSize>>>(

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:salbang/bloc/brand_bloc.dart';
 import 'package:salbang/bloc/my_homepage_bloc.dart';
 import 'package:salbang/bloc/product_bloc.dart';
+import 'package:salbang/bloc/size_bloc.dart';
+import 'package:salbang/bloc/type_bloc.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/drawer_items.dart';
 import 'package:salbang/drawer_list_data.dart';
@@ -12,7 +14,6 @@ import 'package:salbang/resources/colors.dart';
 import 'package:salbang/ui/product/product_catalog.dart';
 import 'package:salbang/ui/product/product_master.dart';
 import 'package:salbang/ui/product_brand/product_brand_master.dart';
-import 'package:salbang/ui/product_brand/product_brand_settings.dart';
 import 'package:salbang/ui/product_size/product_size_master.dart';
 import 'package:salbang/ui/product_type/product_type_master.dart';
 
@@ -66,9 +67,21 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       case 5:
-        return new ProductTypeMaster();
+        return new BlocProvider<TypeBloc>(
+          bloc: TypeBloc(DBHelper()),
+          child: new BlocProvider<ProductBloc>(
+            bloc: ProductBloc(DBHelper()),
+            child: new ProductTypeMaster(),
+          ),
+        );
       case 6:
-        return new ProductSizeMaster();
+        return new BlocProvider<SizeBloc>(
+          bloc: SizeBloc(DBHelper()),
+          child: new BlocProvider<ProductBloc>(
+            bloc: ProductBloc(DBHelper()),
+            child: new ProductSizeMaster(),
+          ),
+        );
       default:
         return new Product();
     }
