@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/type_bloc.dart';
-import 'package:salbang/database/database.dart';
-import 'package:salbang/database/response_salbang.dart';
 import 'package:salbang/model/product_type.dart';
 import 'package:salbang/model/response_database.dart';
+import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/ui/product_type/product_type_add_layout.dart';
@@ -20,11 +19,12 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
   @override
   void initState() {
     super.initState();
-    _typeBloc = TypeBloc(DBHelper());
+
   }
 
   @override
   Widget build(BuildContext context) {
+    _typeBloc = BlocProvider.of<TypeBloc>(context);
     _typeBloc.getTypesData();
     return Scaffold(
       body: new StreamBuilder<ResponseDatabase<List<ProductType>>>(

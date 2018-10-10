@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:rxdart/rxdart.dart';
 import 'package:salbang/database/database.dart';
-import 'package:salbang/database/response_salbang.dart';
 import 'package:salbang/model/button_state.dart';
 import 'package:salbang/model/product_size.dart';
 import 'package:salbang/model/response_database.dart';
@@ -43,7 +42,7 @@ class SizeBloc implements BlocBase{
     _outputSizeStatus.add(sizeStatus);
   }
 
-  void getSizesData() async{
+  Future<void> getSizesData() async{
     final ResponseDatabase<List<ProductSize>> listDataSizes = await _dbHelper.getProductSizes();
     _outputListDataSizes.add(listDataSizes);
   }
@@ -63,6 +62,23 @@ class SizeBloc implements BlocBase{
     final ResponseDatabase<ProductSize> insertedProductSize = await _dbHelper.insertOrUpdateSize(size);
     _outputButtonInsertSizeState.add(ButtonState.IDLE);
     _outputOperationResult.add(insertedProductSize.data.name + ' dengan id "' + insertedProductSize.data.id.toString() + '" berhasil diubah');
+  }
+
+  Future<ResponseDatabase> deleteSize(int id)async{
+    final ResponseDatabase responseDatabase = await _dbHelper.deleteSize(id);
+    if(responseDatabase.result == ResponseDatabase.SUCCESS){
+      await getSizesData();
+    }
+    return responseDatabase;
+  }
+
+  void restoreSize(ProductSize size) async{
+    size.status = 1;
+    final ResponseDatabase<ProductSize> response
+      = await _dbHelper.insertOrUpdateSize(size);
+    if(response.result == ResponseDatabase.SUCCESS){
+      await getSizesData();
+    }
   }
 
   @override

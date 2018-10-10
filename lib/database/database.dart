@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:path/path.dart';
-import 'package:salbang/database/response_salbang.dart';
 import 'package:salbang/database/table_schema/brand.dart';
 import 'package:salbang/database/table_schema/product.dart';
 import 'package:salbang/database/table_schema/product_image.dart';
@@ -12,13 +11,8 @@ import 'package:salbang/model/brand.dart';
 import 'package:salbang/model/product.dart';
 import 'package:salbang/model/product_image.dart';
 import 'package:salbang/model/product_size.dart';
-import 'package:salbang/model/product_size.dart';
 import 'package:salbang/model/product_type.dart';
 import 'package:salbang/model/product_unit.dart';
-import 'package:salbang/model/response_database.dart';
-import 'package:salbang/model/response_database.dart';
-import 'package:salbang/model/response_database.dart';
-import 'package:salbang/model/response_database.dart';
 import 'package:salbang/model/response_database.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -109,7 +103,7 @@ class DBHelper {
       return ResponseDatabase(
         result: ResponseDatabase.ERROR_SHOULD_RETRY,
         message:
-            'Terjadi error saat coba delete brand dan produk terkait dari database',
+            'Terjadi error saat coba delete brand dari database',
       );
     }
   }
@@ -179,13 +173,22 @@ class DBHelper {
     }
   }
 
-  Future<Null> deleteSize(int id) async {
-    final Database dbClient = await db;
-    final Map<String, dynamic> valueToBeUpdated = {
-      SizeTable.COLUMN_STATUS: 0,
-    };
-    dbClient.update(SizeTable.NAME, valueToBeUpdated,
-        where: SizeTable.COLUMN_ID + ' = ?', whereArgs: [id]);
+  Future<ResponseDatabase> deleteSize(int id) async {
+    try{
+      final Database dbClient = await db;
+      final Map<String, dynamic> valueToBeUpdated = {
+        SizeTable.COLUMN_STATUS: 0,
+      };
+      dbClient.update(SizeTable.NAME, valueToBeUpdated,
+          where: SizeTable.COLUMN_ID + ' = ?', whereArgs: [id]);
+      return ResponseDatabase(
+          result: ResponseDatabase.SUCCESS,
+          message: 'Delete size dengan id "${id}" sukses');
+    }on DatabaseException catch(e){
+      return ResponseDatabase(
+          result: ResponseDatabase.ERROR_SHOULD_RETRY,
+          message: 'Delete size dengan id "${id}" gagal');
+    }
   }
 
   ///Contoh pemanggilan getProductsBy(2, ProductTable.COLUMN_FK_SIZE)
@@ -250,13 +253,22 @@ class DBHelper {
     }
   }
 
-  Future<Null> deleteType(int id) async {
-    final Database dbClient = await db;
-    final Map<String, dynamic> valueToBeUpdated = {
-      TypeTable.COLUMN_STATUS: 0,
-    };
-    dbClient.update(TypeTable.NAME, valueToBeUpdated,
-        where: TypeTable.COLUMN_ID + ' = ?', whereArgs: [id]);
+  Future<ResponseDatabase> deleteType(int id) async {
+    try{
+      final Database dbClient = await db;
+      final Map<String, dynamic> valueToBeUpdated = {
+        TypeTable.COLUMN_STATUS: 0,
+      };
+      dbClient.update(TypeTable.NAME, valueToBeUpdated,
+          where: TypeTable.COLUMN_ID + ' = ?', whereArgs: [id]);
+      return ResponseDatabase(
+        result: ResponseDatabase.SUCCESS,
+          message: 'Delete type dengan id "${id}" sukses');
+    }on DatabaseException catch(e){
+      return ResponseDatabase(
+          result: ResponseDatabase.ERROR_SHOULD_RETRY,
+          message: 'Delete type dengan id "${id}" gagal');
+    }
   }
 
   Future<Null> insertOrUpdateUnit(ProductUnit unit) async {
