@@ -45,8 +45,8 @@ class BrandBloc extends BlocBase{
     _outputOperationResult.add(responseBrand);
   }
 
-  Future<void> getBrands()async{
-    final ResponseDatabase<List<Brand>> responseBrands = await _dbHelper.getBrands();
+  Future<void> getBrands({String brandName = ''})async{
+    final ResponseDatabase<List<Brand>> responseBrands = await _dbHelper.getBrands(brandName: brandName);
     _outputBrands.add(responseBrands);
     return;
   }

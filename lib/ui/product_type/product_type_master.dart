@@ -5,6 +5,7 @@ import 'package:salbang/model/response_database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
+import 'package:salbang/ui/global_widget/flutter_search_bar_base.dart';
 import 'package:salbang/ui/product_type/product_type_add_layout.dart';
 import 'package:salbang/ui/product_type/product_type_master_list.dart';
 
@@ -15,11 +16,51 @@ class ProductTypeMaster extends StatefulWidget {
 
 class _ProductTypeMasterState extends State<ProductTypeMaster> {
   TypeBloc _typeBloc;
-
+  SearchBar searchBar;
   @override
   void initState() {
     super.initState();
 
+  }
+  _ProductTypeMasterState(){
+    searchBar = new SearchBar(
+      inBar: false,
+      buildDefaultAppBar: renderAppBar,
+      setState: setState,
+      onSubmitted: onSearchBarSubmitted,
+      onClosed: onSearchBarClosed,
+      clearOnSubmit: false,
+      colorBackButton : false,
+      closeOnSubmit: false,
+    );
+  }
+
+  void onSearchBarSubmitted(String query) {
+    _typeBloc.getTypesData(typeName: query);
+  }
+
+  void onSearchBarClosed() {
+    _typeBloc.getTypesData();
+  }
+
+  Widget renderAppBar(BuildContext context){
+    return new AppBar(
+      elevation: 0.0,
+      backgroundColor: colorAppbar,
+      title: const Text("Master Tipe"),
+      actions: [
+        searchBar.getSearchAction(context),
+      new IconButton(
+        icon: const Icon(Icons.add),
+        color: colorButtonAdd,
+        onPressed: () {
+          NavigationUtil.navigateToAnyWhere(
+            context,
+            ProductTypeAddLayout(),
+          );
+        },
+      ),]
+    );
   }
 
   @override
@@ -27,6 +68,7 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
     _typeBloc = BlocProvider.of<TypeBloc>(context);
     _typeBloc.getTypesData();
     return Scaffold(
+      appBar: searchBar.build(context),
       body: new StreamBuilder<ResponseDatabase<List<ProductType>>>(
         stream: _typeBloc.outputListDataTypes,
         builder: (context, snapshot) {
@@ -40,7 +82,7 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
             }else{
               return new CustomScrollView(
                 slivers: <Widget>[
-                  buildSliverAppBar(),
+//                  buildSliverAppBar(),
                   buildList(snapshot.data),
                 ],
               );
@@ -48,7 +90,7 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
           }
           return new CustomScrollView(
             slivers: <Widget>[
-              buildSliverAppBar(),
+//              buildSliverAppBar(),
               buildSliverNoDataAvailable(),
             ],
           );

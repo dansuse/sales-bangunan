@@ -42,9 +42,9 @@ class TypeBloc implements BlocBase{
     _outputTypeStatus.add(typeStatus);
   }
 
-  Future<void> getTypesData() async{
+  Future<void> getTypesData({String typeName = ''}) async{
     _outputListDataTypes.add( ResponseDatabase(result: ResponseDatabase.LOADING, data: null ,message: 'Loading'));
-    final ResponseDatabase<List<ProductType>> listDataTypes = await _dbHelper.getProductTypes();
+    final ResponseDatabase<List<ProductType>> listDataTypes = await _dbHelper.getProductTypes(typename: typeName);
     _outputListDataTypes.add(listDataTypes);
   }
 

@@ -108,12 +108,14 @@ class DBHelper {
     }
   }
 
-  Future<ResponseDatabase<List<Brand>>> getBrands() async {
+  Future<ResponseDatabase<List<Brand>>> getBrands({String brandName = ''}) async {
     try {
       final Database dbClient = await db;
       final List<Map<String, dynamic>> queryResult =
           await dbClient.query(BrandTable.NAME,
-            columns: [BrandTable.COLUMN_NAME, BrandTable.COLUMN_DESCRIPTION, BrandTable.COLUMN_ID, BrandTable.COLUMN_STATUS]);
+            columns: [BrandTable.COLUMN_NAME, BrandTable.COLUMN_DESCRIPTION, BrandTable.COLUMN_ID, BrandTable.COLUMN_STATUS],
+          where : 'name LIKE ?',
+          whereArgs: ['%'+brandName+'%']);
       if (queryResult.isEmpty) {
         return ResponseDatabase<List<Brand>>(
             result: ResponseDatabase.SUCCESS_EMPTY);
@@ -191,7 +193,7 @@ class DBHelper {
     }
   }
 
-  Future<ResponseDatabase<List<ProductSize>>> getProductSizes() async {
+  Future<ResponseDatabase<List<ProductSize>>> getProductSizes({String sizeName = ''}) async {
     try {
       final Database dbClient = await db;
       final List<Map<String, dynamic>> response =
@@ -199,7 +201,9 @@ class DBHelper {
           columns: <String>[SizeTable.COLUMN_ID,
           SizeTable.COLUMN_NAME,
           SizeTable.COLUMN_STATUS
-          ]);
+          ],
+      where: 'name LIKE ?',
+      whereArgs: ['%'+sizeName+'%']);
       if (response.isEmpty) {
         return ResponseDatabase<List<ProductSize>>(
             result: ResponseDatabase.SUCCESS_EMPTY);
@@ -359,11 +363,11 @@ class DBHelper {
 //  return ResponseSalbang(httpStatusCode: 404, result:ResultResponseSalbang.GET_SQFLITE_FAIL, data: null ,errorMessage: 'Data Tidak Ditemukan');
 
 
-  Future<ResponseDatabase<List<ProductType>>> getProductTypes() async {
+  Future<ResponseDatabase<List<ProductType>>> getProductTypes({String typename = ''}) async {
     try {
       final Database dbClient = await db;
       final List<Map<String, dynamic>> response =
-      await dbClient.query('type', columns: ['id', 'name', 'status']);
+      await dbClient.query('type', columns: ['id', 'name', 'status'], where: 'name LIKE ?', whereArgs: ['%'+typename+'%']);
       if (response.isEmpty) {
         return ResponseDatabase<List<ProductType>>(
             result: ResponseDatabase.SUCCESS_EMPTY);

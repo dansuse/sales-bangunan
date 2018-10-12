@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:salbang/resources/colors.dart';
 
 typedef Widget AppBarCallback(BuildContext context);
 typedef void TextFieldSubmitCallback(String value);
@@ -160,7 +161,7 @@ class SearchBar {
 //            Navigator.maybePop(context);
           Navigator.pop(context);
       }),
-      backgroundColor: barColor,
+      backgroundColor: colorAppbar,
       title: new Directionality(
           textDirection: Directionality.of(context),
           child: new TextField(
