@@ -191,6 +191,41 @@ class DBHelper {
     }
   }
 
+  Future<ResponseDatabase<List<ProductSize>>> getProductSizes() async {
+    try {
+      final Database dbClient = await db;
+      final List<Map<String, dynamic>> response =
+      await dbClient.query(SizeTable.NAME,
+          columns: <String>[SizeTable.COLUMN_ID,
+          SizeTable.COLUMN_NAME,
+          SizeTable.COLUMN_STATUS
+          ]);
+      if (response.isEmpty) {
+        return ResponseDatabase<List<ProductSize>>(
+            result: ResponseDatabase.SUCCESS_EMPTY);
+      } else {
+        final List<ProductSize> _dataProductSize =
+        response.map((Map<String, dynamic> item) {
+          return new ProductSize(
+            item[SizeTable.COLUMN_NAME],
+            id: item[SizeTable.COLUMN_ID],
+            status: item[SizeTable.COLUMN_STATUS],
+          );
+        }).toList();
+        return ResponseDatabase<List<ProductSize>>(
+          result: ResponseDatabase.SUCCESS,
+          data: _dataProductSize,
+        );
+      }
+    } on DatabaseException catch (_) {
+      return ResponseDatabase<List<ProductSize>>(
+        result: ResponseDatabase.ERROR_SHOULD_RETRY,
+        message: 'Terjadi error saat coba mendapatkan ukuran dari database',
+      );
+    }
+  }
+
+
   ///Contoh pemanggilan getProductsBy(2, ProductTable.COLUMN_FK_SIZE)
   Future<List<Product>> getProductsBy(
       int id, String foreignKeyColumnName) async {
@@ -314,34 +349,6 @@ class DBHelper {
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<ResponseDatabase<List<ProductSize>>> getProductSizes() async {
-    try {
-      var dbClient = await db;
-      final List<Map<String, dynamic>> response =
-          await dbClient.query('size', columns: ['id', 'name', 'status']);
-      if (response.isEmpty) {
-        return ResponseDatabase<List<ProductSize>>(
-            result: ResponseDatabase.SUCCESS_EMPTY);
-      } else {
-        final List<ProductSize> _dataProductSize =
-        response.map((Map<String, dynamic> item) {
-          return new ProductSize(
-            item[SizeTable.COLUMN_NAME],
-            id: item[SizeTable.COLUMN_ID],
-            status: item[SizeTable.COLUMN_STATUS],
-          );
-        }).toList();
-        return ResponseDatabase<List<ProductSize>>(
-          result: ResponseDatabase.SUCCESS,
-          data: _dataProductSize,
-        );
-      }
-    } on DatabaseException catch (_) {
-      return ResponseDatabase<List<ProductSize>>(
-        result: ResponseDatabase.ERROR_SHOULD_RETRY,
-        message: 'Terjadi error saat coba mendapatkan ukuran dari database',
-      );
-    }
 //  if (list.length > 0) {
 //  List<ProductSize> _dataProductSize = new List();
 //  for (int i = 0; i < list.length; i++) {
@@ -350,11 +357,11 @@ class DBHelper {
 //  return ResponseSalbang(httpStatusCode: 200, result: ResultResponseSalbang.GET_SQFLITE_SUCCESS, data: _dataProductSize,errorMessage: '');
 //  }
 //  return ResponseSalbang(httpStatusCode: 404, result:ResultResponseSalbang.GET_SQFLITE_FAIL, data: null ,errorMessage: 'Data Tidak Ditemukan');
-  }
+
 
   Future<ResponseDatabase<List<ProductType>>> getProductTypes() async {
     try {
-      var dbClient = await db;
+      final Database dbClient = await db;
       final List<Map<String, dynamic>> response =
       await dbClient.query('type', columns: ['id', 'name', 'status']);
       if (response.isEmpty) {

@@ -5,7 +5,6 @@ import 'package:salbang/model/response_database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
-import 'package:salbang/ui/product_size/data_product_size.dart';
 import 'package:salbang/ui/product_size/product_size_master_list.dart';
 import 'package:salbang/ui/product_size/product_size_settings.dart';
 
@@ -30,75 +29,70 @@ class _ProductSizeMasterState extends State<ProductSizeMaster> {
       body: new StreamBuilder<ResponseDatabase<List<ProductSize>>>(
         stream: _sizeBloc.outputListDataSizes,
         builder: (context, snapshot) {
-          if (snapshot.hasData && (snapshot.data.result == ResponseDatabase.SUCCESS || snapshot.data.result == ResponseDatabase.SUCCESS_EMPTY)) {
+          if (snapshot.hasData) {
             return new CustomScrollView(
               slivers: <Widget>[
-                new SliverAppBar(
-                  backgroundColor: colorAppbar,
-                  title: new Text("Master Ukuran"),
-                  actions: <Widget>[
-                    new IconButton(
-                        icon: new Icon(Icons.add),
-                        color: colorButtonAdd,
-                        onPressed: () {
-                          NavigationUtil.navigateToAnyWhere(
-                            context, ProductSizeAddLayout(),
-
-                          );
-                        })
-                  ],
-                ),
-                new SliverList(
-                  delegate: new SliverChildBuilderDelegate(
-                    (BuildContext context, int index) {
-                      return new Container(
-                        child: new GestureDetector(
-                          onTap: () {},
-                          child:
-                              new ProductSizeMasterList(snapshot.data.data[index]),
-                        ),
-                      );
-                    },
-                    childCount: snapshot.data.data.length,
-                  ),
-                ),
+                buildSliverAppBar(),
+                buildList(snapshot.data),
               ],
             );
           }
           return new CustomScrollView(
             slivers: <Widget>[
-              new SliverAppBar(
-                backgroundColor: colorAppbar,
-                title: new Text("Master Ukuran"),
-                actions: <Widget>[
-                  new IconButton(
-                      icon: new Icon(Icons.add),
-                      color: colorButtonAdd,
-                      onPressed: () {
-                        DataProductSize _dataProductSize = new DataProductSize(addMode: true, productSize: null);
-                        NavigationUtil.navigateToAnyWhere(
-                          context, ProductSizeAddLayout(),
-
-                        );
-                      })
-                ],
-              ),
-              new SliverList(
-                delegate: new SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    return new SizedBox(
-                        height: MediaQuery.of(context).size.height,
-                        child: new Center(
-                          child: Text("Tidak Ada Data"),
-                        ));
-                  },
-                  childCount: 1,
-                ),
-              ),
+              buildSliverAppBar(),
+              buildSliverNoDataAvailable(),
             ],
           );
         },
       ),
     );
   }
+
+  Widget buildSliverAppBar(){
+    return new SliverAppBar(
+      backgroundColor: colorAppbar,
+      title: const Text("Master Ukuran"),
+      actions: <Widget>[
+        new IconButton(
+            icon: const Icon(Icons.add),
+            color: colorButtonAdd,
+            onPressed: () {
+              NavigationUtil.navigateToAnyWhere(
+                context, ProductSizeAddLayout(),
+              );
+            })
+      ],
+    );
+  }
+
+  Widget buildList(ResponseDatabase<List<ProductSize>> response){
+    if(response.result == ResponseDatabase.SUCCESS){
+      return new SliverList(
+        delegate: new SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+            return new Container(
+              child: new GestureDetector(
+                onTap: () {},
+                child:
+                new ProductSizeMasterList(response.data[index]),
+              ),
+            );
+          },
+          childCount: response.data.length,
+        ),
+      );
+    }else{
+      return buildSliverNoDataAvailable();
+    }
+  }
+
+  Widget buildSliverNoDataAvailable(){
+    return const SliverFillRemaining(
+      child: Center(
+        child: Text("Tidak Ada Data"),),
+    );
+  }
+
 }
+
+
