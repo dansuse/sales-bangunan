@@ -42,8 +42,8 @@ class SizeBloc implements BlocBase{
     _outputSizeStatus.add(sizeStatus);
   }
 
-  Future<void> getSizesData() async{
-    final ResponseDatabase<List<ProductSize>> listDataSizes = await _dbHelper.getProductSizes();
+  Future<void> getSizesData({String sizeName = ''}) async{
+    final ResponseDatabase<List<ProductSize>> listDataSizes = await _dbHelper.getProductSizes(sizeName: sizeName);
     _outputListDataSizes.add(listDataSizes);
   }
 

@@ -5,6 +5,7 @@ import 'package:salbang/model/response_database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
+import 'package:salbang/ui/global_widget/flutter_search_bar_base.dart';
 import 'package:salbang/ui/product_size/product_size_master_list.dart';
 import 'package:salbang/ui/product_size/product_size_settings.dart';
 
@@ -15,10 +16,50 @@ class ProductSizeMaster extends StatefulWidget {
 
 class _ProductSizeMasterState extends State<ProductSizeMaster> {
   SizeBloc _sizeBloc;
-
+  SearchBar searchBar;
   @override
   void initState() {
     super.initState();
+  }
+  _ProductSizeMasterState(){
+    searchBar = new SearchBar(
+      inBar: false,
+      buildDefaultAppBar: renderAppBar,
+      setState: setState,
+      onSubmitted: onSearchBarSubmitted,
+      onClosed: onSearchBarClosed,
+      clearOnSubmit: false,
+      colorBackButton : false,
+      closeOnSubmit: false,
+    );
+  }
+
+  void onSearchBarSubmitted(String query) {
+    _sizeBloc.getSizesData(sizeName: query);
+  }
+
+  void onSearchBarClosed() {
+    _sizeBloc.getSizesData();
+  }
+
+  Widget renderAppBar(BuildContext context){
+    return new AppBar(
+        elevation: 0.0,
+        backgroundColor: colorAppbar,
+        title: const Text("Master Ukuran"),
+        actions: [
+          searchBar.getSearchAction(context),
+          new IconButton(
+            icon: const Icon(Icons.add),
+            color: colorButtonAdd,
+            onPressed: () {
+              NavigationUtil.navigateToAnyWhere(
+                context,
+                ProductSizeAddLayout(),
+              );
+            },
+          ),]
+    );
   }
 
   @override
@@ -26,20 +67,21 @@ class _ProductSizeMasterState extends State<ProductSizeMaster> {
     _sizeBloc = BlocProvider.of<SizeBloc>(context);
     _sizeBloc.getSizesData();
     return Scaffold(
+      appBar: searchBar.build(context),
       body: new StreamBuilder<ResponseDatabase<List<ProductSize>>>(
         stream: _sizeBloc.outputListDataSizes,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return new CustomScrollView(
               slivers: <Widget>[
-                buildSliverAppBar(),
+//                buildSliverAppBar(),
                 buildList(snapshot.data),
               ],
             );
           }
           return new CustomScrollView(
             slivers: <Widget>[
-              buildSliverAppBar(),
+//              buildSliverAppBar(),
               buildSliverNoDataAvailable(),
             ],
           );
