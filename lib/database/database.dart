@@ -507,7 +507,11 @@ class DBHelper {
     try {
       final Database dbClient = await db;
       final List<Map<String, dynamic>> response =
-      await dbClient.query('type', columns: ['id', 'name', 'status'], where: 'name LIKE ?', whereArgs: ['%'+typename+'%']);
+      await dbClient.query(TypeTable.NAME,
+          columns: [TypeTable.COLUMN_ID,
+          TypeTable.COLUMN_NAME,
+          TypeTable.COLUMN_STATUS],
+          where: '${TypeTable.COLUMN_NAME} LIKE ?', whereArgs: ['%'+typename+'%']);
       if (response.isEmpty) {
         return ResponseDatabase<List<ProductType>>(
             result: ResponseDatabase.SUCCESS_EMPTY);
