@@ -9,21 +9,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="03f7b765-d4fd-4a0a-8fab-65c21b242b21" name="Default" comment="">
+    <list default="true" id="03f7b765-d4fd-4a0a-8fab-65c21b242b21" name="Default" comment="Master Product Selesai.&#10;Catalog Product sudah di select datanya dari database">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analysis_options.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/analysis_options.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bloc/cupertino_picker_bloc.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bloc/cupertino_picker_bloc.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bloc/product_bloc.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bloc/product_bloc.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/database/database.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/database/database.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/database/table_schema/brand.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/database/table_schema/brand.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/database/table_schema/product.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/database/table_schema/product.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/database/table_schema/product_image.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/database/table_schema/product_image.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/database/table_schema/size.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/database/table_schema/size.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/database/table_schema/type.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/database/table_schema/type.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/database/table_schema/unit.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/database/table_schema/unit.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/product/product_master.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/product/product_master.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/product/product_master_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/product/product_master_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/product/product_settings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/product/product_settings.dart" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -132,6 +119,7 @@
         <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
+    <option name="RESET_MODE" value="SOFT" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -383,7 +371,21 @@
       <option name="project" value="LOCAL" />
       <updated>1540706048372</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Sudah done">
+      <created>1540724403449</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1540724403449</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Master Product Selesai.&#10;Catalog Product sudah di select datanya dari database">
+      <created>1540724469690</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1540724469690</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TodoView">
@@ -440,6 +442,17 @@
               <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
                 <collection />
               </option>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="feature-4-insert-product" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
               <option name="COLUMN_ORDER">
                 <list>
                   <option value="0" />
@@ -464,7 +477,9 @@
     <MESSAGE value="Hampir selesai" />
     <MESSAGE value="Masih membenahi master product" />
     <MESSAGE value="Masih stuck di update product" />
-    <option name="LAST_COMMIT_MESSAGE" value="Masih stuck di update product" />
+    <MESSAGE value="Sudah done" />
+    <MESSAGE value="Master Product Selesai.&#10;Catalog Product sudah di select datanya dari database" />
+    <option name="LAST_COMMIT_MESSAGE" value="Master Product Selesai.&#10;Catalog Product sudah di select datanya dari database" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
