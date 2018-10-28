@@ -229,6 +229,132 @@ class DBHelper {
     }
   }
 
+  Future<ResponseDatabase<List<Product>>> getProductsForCatalog()async{
+    try{
+      final Database dbClient = await db;
+//      final List<Map<String, dynamic>> queryResult = await dbClient.query(
+//        ProductTable.NAME,
+//        columns: ProductTable.getColumnList(),
+//        where: ProductTable.COLUMN_STATUS + ' = ?',
+//        whereArgs: [1],
+//        orderBy: ProductTable.COLUMN_NAME + ' ASC',
+//      );
+
+      final List<Map<String, dynamic>> queryResult = await dbClient.rawQuery("select ${ProductTable.NAME}.*, ${TypeTable.NAME}.*, ${SizeTable.NAME}.*, ${BrandTable.NAME}.*"
+          + " from ${ProductTable.NAME}, ${TypeTable.NAME}, ${SizeTable.NAME}, ${BrandTable.NAME} "
+          + "where ${ProductTable.NAME}.${ProductTable.COLUMN_FK_BRAND} = ${BrandTable.NAME}.${BrandTable.COLUMN_ID} "
+          + "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_SIZE} = ${SizeTable.NAME}.${SizeTable.COLUMN_ID} "
+          + "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_TYPE} = ${TypeTable.NAME}.${TypeTable.COLUMN_ID} "
+          + "AND ${BrandTable.NAME}.${BrandTable.COLUMN_STATUS} = 1 "
+          + "AND ${SizeTable.NAME}.${SizeTable.COLUMN_STATUS} = 1 "
+          + "AND ${TypeTable.NAME}.${TypeTable.COLUMN_STATUS} = 1 "
+      );
+
+      if(queryResult.isEmpty){
+        return ResponseDatabase<List<Product>>(result: ResponseDatabase.SUCCESS_EMPTY);
+      }else{
+        final List<Product> products = queryResult.map((item) {
+          return Product(
+            item[ProductTable.COLUMN_ID],
+            item[ProductTable.COLUMN_NAME],
+            item[ProductTable.COLUMN_PRICE],
+            item[ProductTable.COLUMN_STOCK],
+            item[ProductTable.COLUMN_DESCRIPTION],
+            item[ProductTable.COLUMN_STATUS],
+            item[ProductTable.COLUMN_SIZE],
+            item[ProductTable.COLUMN_FK_BRAND],
+            item[ProductTable.COLUMN_FK_TYPE],
+            item[ProductTable.COLUMN_FK_UNIT],
+            item[ProductTable.COLUMN_FK_SIZE],
+            new Brand(item[BrandTable.COLUMN_NAME], item[BrandTable.COLUMN_DESCRIPTION],
+                id: item[BrandTable.COLUMN_ID], status: item[BrandTable.COLUMN_STATUS]),
+            new ProductType(id: item[TypeTable.COLUMN_ID], name: item[TypeTable.COLUMN_NAME],
+                status: item[TypeTable.COLUMN_STATUS]),
+            new ProductSize(item[SizeTable.COLUMN_NAME], id: item[SizeTable.COLUMN_ID], status: item[SizeTable.COLUMN_STATUS]),
+          );
+        }).toList();
+        return ResponseDatabase<List<Product>>(data: products, result: ResponseDatabase.SUCCESS);
+      }
+    }on DatabaseException catch(_){
+      return ResponseDatabase<List<Product>>(result: ResponseDatabase.ERROR_SHOULD_RETRY,
+          message: 'Terjadi error saat mengambil data produk untuk catalog');
+    }
+  }
+
+  Future<ResponseDatabase<List<Product>>> getProductsForMaster()async{
+    try{
+      final Database dbClient = await db;
+//      final List<Map<String, dynamic>> queryResult = await dbClient.query(
+//        ProductTable.NAME,
+//        columns: ProductTable.getColumnList(),
+//        where: ProductTable.COLUMN_STATUS + ' = ?',
+//        whereArgs: [1],
+//        orderBy: ProductTable.COLUMN_NAME + ' ASC',
+//      );
+
+      final List<Map<String, dynamic>> queryResult = await dbClient.rawQuery("select ${ProductTable.NAME}.*, ${TypeTable.NAME}.*, ${SizeTable.NAME}.*, ${BrandTable.NAME}.*"
+          + " from ${ProductTable.NAME}, ${TypeTable.NAME}, ${SizeTable.NAME}, ${BrandTable.NAME} "
+          + "where ${ProductTable.NAME}.${ProductTable.COLUMN_FK_BRAND} = ${BrandTable.NAME}.${BrandTable.COLUMN_ID} "
+          + "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_SIZE} = ${SizeTable.NAME}.${SizeTable.COLUMN_ID} "
+          + "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_TYPE} = ${TypeTable.NAME}.${TypeTable.COLUMN_ID} "
+          + "AND ${BrandTable.NAME}.${BrandTable.COLUMN_STATUS} = 1 "
+          + "AND ${SizeTable.NAME}.${SizeTable.COLUMN_STATUS} = 1 "
+          + "AND ${TypeTable.NAME}.${TypeTable.COLUMN_STATUS} = 1 "
+          + "AND ${ProductTable.NAME}.${ProductTable.COLUMN_STATUS} = 1 "
+      );
+
+      if(queryResult.isEmpty){
+        return ResponseDatabase<List<Product>>(result: ResponseDatabase.SUCCESS_EMPTY);
+      }else{
+        final List<Product> products = queryResult.map((item) {
+          return Product(
+            item[ProductTable.COLUMN_ID],
+            item[ProductTable.COLUMN_NAME],
+            item[ProductTable.COLUMN_PRICE],
+            item[ProductTable.COLUMN_STOCK],
+            item[ProductTable.COLUMN_DESCRIPTION],
+            item[ProductTable.COLUMN_STATUS],
+            item[ProductTable.COLUMN_SIZE],
+            item[ProductTable.COLUMN_FK_BRAND],
+            item[ProductTable.COLUMN_FK_TYPE],
+            item[ProductTable.COLUMN_FK_UNIT],
+            item[ProductTable.COLUMN_FK_SIZE],
+            new Brand(item[BrandTable.COLUMN_NAME], item[BrandTable.COLUMN_DESCRIPTION],
+                id: item[BrandTable.COLUMN_ID], status: item[BrandTable.COLUMN_STATUS]),
+            new ProductType(id: item[TypeTable.COLUMN_ID], name: item[TypeTable.COLUMN_NAME],
+                status: item[TypeTable.COLUMN_STATUS]),
+            new ProductSize(item[SizeTable.COLUMN_NAME], id: item[SizeTable.COLUMN_ID], status: item[SizeTable.COLUMN_STATUS]),
+          );
+        }).toList();
+        return ResponseDatabase<List<Product>>(data: products, result: ResponseDatabase.SUCCESS);
+      }
+    }on DatabaseException catch(_){
+      return ResponseDatabase<List<Product>>(result: ResponseDatabase.ERROR_SHOULD_RETRY,
+          message: 'Terjadi error saat mengambil data produk untuk catalog');
+    }
+  }
+
+  Future<ResponseDatabase> deleteProduct(int id) async {
+    try {
+      final Database dbClient = await db;
+      final Map<String, dynamic> valueToBeUpdated = {
+        ProductTable.COLUMN_STATUS: 0,
+      };
+      int rowAffected = 0;
+      rowAffected += await dbClient.update(ProductTable.NAME, valueToBeUpdated,
+          where: ProductTable.COLUMN_ID + ' = ?', whereArgs: [id]);
+
+      return ResponseDatabase(
+          result: ResponseDatabase.SUCCESS,
+          message: 'Delete product dengan id $id sukses');
+    } on DatabaseException catch (_) {
+      return ResponseDatabase(
+        result: ResponseDatabase.ERROR_SHOULD_RETRY,
+        message:
+        'Terjadi error saat coba delete product dengan id $id dari database',
+      );
+    }
+  }
 
   ///Contoh pemanggilan getProductsBy(2, ProductTable.COLUMN_FK_SIZE)
   Future<List<Product>> getProductsBy(
@@ -332,25 +458,39 @@ class DBHelper {
         where: UnitTable.COLUMN_ID + ' = ?', whereArgs: [id]);
   }
 
-  Future<Null> insertOrUpdateProduct(Product product) async {
-    final Database dbClient = await db;
-    final Map<String, dynamic> dataToBeInserted = {
-      ProductTable.COLUMN_NAME: product.name,
-      ProductTable.COLUMN_PRICE: product.price,
-      ProductTable.COLUMN_STOCK: product.stock,
-      ProductTable.COLUMN_DESCRIPTION: product.description,
-      ProductTable.COLUMN_STATUS: product.status,
-      ProductTable.COLUMN_SIZE: product.size,
-      ProductTable.COLUMN_FK_BRAND: product.brandId,
-      ProductTable.COLUMN_FK_UNIT: product.unitId,
-      ProductTable.COLUMN_FK_TYPE: product.typeId,
-      ProductTable.COLUMN_FK_SIZE: product.sizeId,
-    };
-    if (product.id != ID_FOR_INSERT) {
-      dataToBeInserted.addAll({ProductTable.COLUMN_ID: product.id});
+  Future<ResponseDatabase<Product>> insertOrUpdateProduct(Product product) async {
+    final bool modeInsert = product.id == ID_FOR_INSERT;
+    try{
+      final Database dbClient = await db;
+      final Map<String, dynamic> dataToBeInserted = {
+        ProductTable.COLUMN_NAME: product.name,
+        ProductTable.COLUMN_PRICE: product.price,
+        ProductTable.COLUMN_STOCK: product.stock,
+        ProductTable.COLUMN_DESCRIPTION: product.description,
+        ProductTable.COLUMN_STATUS: product.status,
+        ProductTable.COLUMN_SIZE: product.size,
+        ProductTable.COLUMN_FK_BRAND: product.brandId,
+        ProductTable.COLUMN_FK_UNIT: product.unitId,
+        ProductTable.COLUMN_FK_TYPE: product.typeId,
+        ProductTable.COLUMN_FK_SIZE: product.sizeId,
+      };
+      if (!modeInsert) {
+        dataToBeInserted.addAll({ProductTable.COLUMN_ID: product.id});
+      }
+      product.id = await dbClient.insert(ProductTable.NAME, dataToBeInserted,
+          conflictAlgorithm: ConflictAlgorithm.replace);
+      return ResponseDatabase<Product>(
+        result: ResponseDatabase.SUCCESS,
+        data: product,
+        message: modeInsert ? "Sukses insert produk '${product.name}' dengan id:${product.id}" :
+          "Sukses update produk '${product.name}' dengan id:${product.id}",
+      );
+    }catch (e){
+      final String errorMessage = modeInsert ? "Gagal insert produk" :
+      "Gagal update produk";
+      return ResponseDatabase<Product>
+        .createShouldRetryResponseWithMessage(errorMessage);
     }
-    dbClient.insert(ProductTable.NAME, dataToBeInserted,
-        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
 //  if (list.length > 0) {
@@ -367,7 +507,11 @@ class DBHelper {
     try {
       final Database dbClient = await db;
       final List<Map<String, dynamic>> response =
-      await dbClient.query('type', columns: ['id', 'name', 'status'], where: 'name LIKE ?', whereArgs: ['%'+typename+'%']);
+      await dbClient.query(TypeTable.NAME,
+          columns: [TypeTable.COLUMN_ID,
+          TypeTable.COLUMN_NAME,
+          TypeTable.COLUMN_STATUS],
+          where: '${TypeTable.COLUMN_NAME} LIKE ?', whereArgs: ['%'+typename+'%']);
       if (response.isEmpty) {
         return ResponseDatabase<List<ProductType>>(
             result: ResponseDatabase.SUCCESS_EMPTY);

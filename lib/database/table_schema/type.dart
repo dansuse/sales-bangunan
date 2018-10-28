@@ -1,8 +1,9 @@
 class TypeTable{
   static const String NAME = 'type';
-  static const String COLUMN_ID = 'id';
-  static const String COLUMN_NAME = 'name';
-  static const String COLUMN_STATUS = 'status';
+  static const String COLUMN_PREFIX = 'type_';
+  static const String COLUMN_ID = COLUMN_PREFIX + 'id';
+  static const String COLUMN_NAME = COLUMN_PREFIX + 'name';
+  static const String COLUMN_STATUS = COLUMN_PREFIX + 'status';
 
   static String getCreateTableQuery(){
     return 'CREATE TABLE '

@@ -5,17 +5,18 @@ import 'package:salbang/database/table_schema/unit.dart';
 
 class ProductTable{
   static const String NAME = 'product';
-  static const String COLUMN_ID = 'id';
-  static const String COLUMN_NAME = 'name';
-  static const String COLUMN_PRICE = 'price';
-  static const String COLUMN_STOCK = 'stock';
-  static const String COLUMN_DESCRIPTION = 'description';
-  static const String COLUMN_STATUS = 'status';
-  static const String COLUMN_SIZE = 'size';
-  static const String COLUMN_FK_BRAND = 'brand_id';
-  static const String COLUMN_FK_UNIT = 'unit_id';
-  static const String COLUMN_FK_TYPE = 'type_id';
-  static const String COLUMN_FK_SIZE = 'size_id';
+  static const String COLUMN_PREFIX = 'product_';
+  static const String COLUMN_ID = COLUMN_PREFIX + 'id';
+  static const String COLUMN_NAME = COLUMN_PREFIX + 'name';
+  static const String COLUMN_PRICE = COLUMN_PREFIX + 'price';
+  static const String COLUMN_STOCK = COLUMN_PREFIX + 'stock';
+  static const String COLUMN_DESCRIPTION = COLUMN_PREFIX + 'description';
+  static const String COLUMN_STATUS = COLUMN_PREFIX + 'status';
+  static const String COLUMN_SIZE = COLUMN_PREFIX + 'size';
+  static const String COLUMN_FK_BRAND = COLUMN_PREFIX + 'brand_id';
+  static const String COLUMN_FK_UNIT = COLUMN_PREFIX + 'unit_id';
+  static const String COLUMN_FK_TYPE = COLUMN_PREFIX + 'type_id';
+  static const String COLUMN_FK_SIZE = COLUMN_PREFIX + 'size_id';
   static const int DEFAULT_VALUE_FOR_PRODUCT_WITH_NO_IMAGE = -1;
 
   static String getCreateTableQuery(){
