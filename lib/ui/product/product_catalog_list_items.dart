@@ -1,85 +1,87 @@
 import 'package:flutter/material.dart';
+import 'package:salbang/model/product.dart';
+import 'package:salbang/util/currency_util.dart';
 
 class ProductListItems extends StatelessWidget {
-  final String isi;
-  ProductListItems(this.isi);
+  final Product product;
+  ProductListItems(this.product);
   @override
   Widget build(BuildContext context) {
-    Widget buildProductDescriptionWidget(String label, String value) {
-      return new Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          new Expanded(
-            child: new Container(
-              child: new Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: new Text(
-                  label,
-                  textAlign: TextAlign.left,
-                  style: Theme.of(context).primaryTextTheme.display1,
-                ),
-              ),
-            ),
-            flex: 6,
-          ),
-          new Expanded(
-            child: new Container(
-              child: new Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: new Text(
-                  ":",
-                  textAlign: TextAlign.left,
-                  style: Theme.of(context).primaryTextTheme.display1,
-                ),
-              ),
-            ),
-            flex: 1,
-          ),
-          new Expanded(
-            child: new Container(
-              child: new Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: new Text(
-                  value,
-                  textAlign: TextAlign.left,
-                  softWrap: false,
-                  overflow: TextOverflow.fade,
-                  style: Theme.of(context).primaryTextTheme.display1,
-                ),
-
-              ),
-            ),
-            flex: 9,
-          ),
-        ],
-      );
-    }
-
     return new Card(
       elevation: 0.0,
       child: new Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: new Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             new Expanded(
-              child: buildProductDescriptionWidget('Nama', isi),
+              child: buildProductDescriptionWidget(context, 'Nama', product.name),
             ),
             new Expanded(
-              child: buildProductDescriptionWidget('Ukuran', 'Nama Produk'),
+              child: buildProductDescriptionWidget(context, 'Ukuran', product.productSize.name),
             ),
             new Expanded(
-              child: buildProductDescriptionWidget('Tipe', 'Nama Produk'),
+              child: buildProductDescriptionWidget(context, 'Tipe', product.productType.name),
             ),
             new Expanded(
-              child: buildProductDescriptionWidget('Merk', 'Nama Produk'),
+              child: buildProductDescriptionWidget(context, 'Merk', product.productBrand.name),
             ),
             new Expanded(
-              child: buildProductDescriptionWidget('Harga', 'Nama Produk'),
+              child: buildProductDescriptionWidget(context, 'Harga', CurrencyUtil.parseDoubleToIDR(product.price)),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildProductDescriptionWidget(BuildContext context, String label, String value) {
+    return new Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        new Expanded(
+          child: new Container(
+            child: new Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: new Text(
+                label,
+                textAlign: TextAlign.left,
+                style: Theme.of(context).primaryTextTheme.display1,
+              ),
+            ),
+          ),
+          flex: 6,
+        ),
+        new Expanded(
+          child: new Container(
+            child: new Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: new Text(
+                ":",
+                textAlign: TextAlign.left,
+                style: Theme.of(context).primaryTextTheme.display1,
+              ),
+            ),
+          ),
+          flex: 1,
+        ),
+        new Expanded(
+          child: new Container(
+            child: new Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: new Text(
+                value,
+                textAlign: TextAlign.left,
+                softWrap: false,
+                overflow: TextOverflow.fade,
+                style: Theme.of(context).primaryTextTheme.display1,
+              ),
+
+            ),
+          ),
+          flex: 9,
+        ),
+      ],
     );
   }
 }

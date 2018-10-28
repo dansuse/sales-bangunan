@@ -2,10 +2,11 @@
 
 class BrandTable{
   static String NAME = 'brand';
-  static String COLUMN_ID = 'id';
-  static String COLUMN_NAME = 'name';
-  static String COLUMN_DESCRIPTION = 'description';
-  static String COLUMN_STATUS = 'status';
+  static String COLUMN_PREFIX = 'brand_';
+  static String COLUMN_ID = COLUMN_PREFIX + 'id';
+  static String COLUMN_NAME = COLUMN_PREFIX + 'name';
+  static String COLUMN_DESCRIPTION = COLUMN_PREFIX + 'description';
+  static String COLUMN_STATUS = COLUMN_PREFIX + 'status';
 
   static String getCreateTableQuery(){
     return 'CREATE TABLE '

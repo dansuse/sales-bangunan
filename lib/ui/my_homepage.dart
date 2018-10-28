@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/brand_bloc.dart';
+import 'package:salbang/bloc/cupertino_picker_bloc.dart';
 import 'package:salbang/bloc/my_homepage_bloc.dart';
 import 'package:salbang/bloc/product_bloc.dart';
 import 'package:salbang/bloc/size_bloc.dart';
@@ -53,11 +54,20 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _getDrawerItemWidget(int pos) {
     switch (pos) {
       case 0:
-        return new Product();
+        return new BlocProvider<ProductBloc>(
+          bloc: ProductBloc(DBHelper()),
+          child: ProductCatalog(),
+        );
       case 1:
-        return Product();
+        return ProductCatalog();
       case 3:
-        return new ProductMaster();
+        return new BlocProvider<ProductBloc>(
+          bloc: ProductBloc(DBHelper()),
+          child: new BlocProvider<CupertinoPickerBloc>(
+            bloc: CupertinoPickerBloc(DBHelper()),
+            child: new ProductMaster(),
+          ),
+        );
       case 4:
         return new BlocProvider<BrandBloc>(
           bloc: BrandBloc(DBHelper()),
@@ -83,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       default:
-        return new Product();
+        return new ProductCatalog();
     }
   }
 
@@ -139,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: new StreamBuilder<int>(
           stream: _myHomePageBloc.outputHomePageBody,
           builder: (context, snapshot) {
-            return _getDrawerItemWidget(snapshot.hasData ? snapshot.data : 0);
+            return _getDrawerItemWidget(snapshot.hasData ? snapshot.data : 3);
           },
         ),
       ),
