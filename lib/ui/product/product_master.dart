@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/product_bloc.dart';
 import 'package:salbang/model/product.dart';
@@ -8,7 +11,7 @@ import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/ui/global_widget/progress_indicator_builder.dart';
 import 'package:salbang/ui/product/product_master_list.dart';
 import 'package:salbang/ui/product/product_settings.dart';
-
+import 'package:image_picker/image_picker.dart';
 class ProductMaster extends StatefulWidget {
   @override
   _ProductMasterState createState() => _ProductMasterState();
@@ -16,12 +19,15 @@ class ProductMaster extends StatefulWidget {
 
 class _ProductMasterState extends State<ProductMaster> {
   ProductBloc productBloc;
+  List<File> _image;
+
+
 
   @override
   Widget build(BuildContext context) {
     productBloc = BlocProvider.of<ProductBloc>(context);
     productBloc.getProductsForMaster();
-    return Scaffold(
+    return new Scaffold(
       body: StreamBuilder<ResponseDatabase<List<Product>>>(
         stream: productBloc.outputMasterProducts,
         builder: (context, snapshot){

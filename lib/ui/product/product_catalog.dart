@@ -38,7 +38,7 @@ class _ProductState extends State<ProductCatalog> {
                         delegate: new SliverChildBuilderDelegate(
                               (BuildContext context, int index) {
                             return new GestureDetector(
-                              onTap: (){NavigationUtil.navigateToAnyWhere(context, new ProductCatalogDetail());},
+                              onTap: (){NavigationUtil.navigateToAnyWhere(context, new ProductCatalogDetail(product: snapshot.data.data[index],));},
                               child: new ProductListItems(snapshot.data.data[index]),
                             );
                           },

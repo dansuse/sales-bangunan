@@ -17,11 +17,7 @@ class ProductTypeMaster extends StatefulWidget {
 class _ProductTypeMasterState extends State<ProductTypeMaster> {
   TypeBloc _typeBloc;
   SearchBar searchBar;
-  @override
-  void initState() {
-    super.initState();
 
-  }
   _ProductTypeMasterState(){
     searchBar = new SearchBar(
       inBar: false,
@@ -35,12 +31,19 @@ class _ProductTypeMasterState extends State<ProductTypeMaster> {
     );
   }
 
+
   void onSearchBarSubmitted(String query) {
     _typeBloc.getTypesData(typeName: query);
   }
 
   void onSearchBarClosed() {
     _typeBloc.getTypesData();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
   }
 
   Widget renderAppBar(BuildContext context){

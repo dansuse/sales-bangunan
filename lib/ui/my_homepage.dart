@@ -12,10 +12,14 @@ import 'package:salbang/drawer_items.dart';
 import 'package:salbang/drawer_list_data.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
+import 'package:salbang/ui/base_ui/master_template.dart';
+import 'package:salbang/ui/global_widget/flutter_search_bar_base.dart';
 import 'package:salbang/ui/product/product_catalog.dart';
 import 'package:salbang/ui/product/product_master.dart';
+import 'package:salbang/ui/product_brand/product_brand_catalog.dart';
 import 'package:salbang/ui/product_brand/product_brand_master.dart';
 import 'package:salbang/ui/product_size/product_size_master.dart';
+import 'package:salbang/ui/product_type/product_type_catalog.dart';
 import 'package:salbang/ui/product_type/product_type_master.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -26,8 +30,49 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> _key = new GlobalKey<ScaffoldState>();
   MyHomePageBloc _myHomePageBloc;
+  TypeBloc _typeBloc;
   DrawerListItemData _drawerListItemData;
   List<DrawerItems> _drawerItemsData;
+  int index = 0 ;
+  SearchBar searchBar;
+
+  _MyHomePageState(){
+    searchBar = new SearchBar(
+      inBar: false,
+      buildDefaultAppBar: renderAppBar,
+      setState: setState,
+      onSubmitted: onSearchBarSubmitted,
+      onClosed: onSearchBarClosed,
+      clearOnSubmit: false,
+      colorBackButton : false,
+      closeOnSubmit: false,
+    );
+  }
+
+  Widget renderAppBar(BuildContext context){
+    return new AppBar(
+        elevation: 0.0,
+        centerTitle: true,
+        backgroundColor: colorAppbar,
+        title: const Text("Sal-Bang"),
+        actions: [
+          searchBar.getSearchAction(context),]
+    );
+  }
+
+
+  void onSearchBarSubmitted(String query) {
+    if(index == 2)
+    {
+      print("get in");
+      _typeBloc.getTypesData(typeName: query);
+    }
+  }
+
+  void onSearchBarClosed() {
+
+  }
+
   @override
   void initState() {
     super.initState();
@@ -59,7 +104,15 @@ class _MyHomePageState extends State<MyHomePage> {
           child: ProductCatalog(),
         );
       case 1:
-        return ProductCatalog();
+        return new BlocProvider<BrandBloc>(
+          bloc: BrandBloc(DBHelper()),
+          child: ProductBrandCatalog(),
+        );
+      case 2:
+        return new BlocProvider<TypeBloc>(
+          bloc: TypeBloc(DBHelper()),
+          child: ProductTypeCatalog(),
+        );
       case 3:
         return new BlocProvider<ProductBloc>(
           bloc: ProductBloc(DBHelper()),
@@ -101,6 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     print('- build homepage');
     _myHomePageBloc = BlocProvider.of<MyHomePageBloc>(context);
+    _typeBloc = BlocProvider.of<TypeBloc>(context);
     final List<Widget> drawerOptions = <Widget>[];
     for (int i = 0; i < _drawerItemsData.length; i++) {
       final DrawerItems root = _drawerItemsData[i];
@@ -111,48 +165,51 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     Future<bool> _onWillPop() {
       return showDialog(
-        context: context,
-        builder: (context) => new AlertDialog(
-          title: new Text('Pemberitahuan'),
-          content: new Text('Apakah Anda Yakin Ingin Keluar Dari Aplikasi?'),
-          actions: <Widget>[
-            new FlatButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: new Text('Tidak'),
-            ),
-            new FlatButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: new Text('Ya'),
-            ),
-          ],
-        ),
-      ) ?? false;
+            context: context,
+            builder: (context) => new AlertDialog(
+                  title: new Text('Pemberitahuan'),
+                  content:
+                      new Text('Apakah Anda Yakin Ingin Keluar Dari Aplikasi?'),
+                  actions: <Widget>[
+                    new FlatButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: new Text('Tidak'),
+                    ),
+                    new FlatButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: new Text('Ya'),
+                    ),
+                  ],
+                ),
+          ) ??
+          false;
     }
-    return new SafeArea(child: new WillPopScope(
-        child:new Scaffold(
-      key: _key,
-      appBar: new AppBar(
-        backgroundColor: colorAppbar,
-        title: const Text('Sal-Bang'),
-        centerTitle: true,
-        elevation: 0.0,
-      ),
-      drawer: new Drawer(
-        child: new SafeArea(
-          child: new ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[new Column(children: drawerOptions)],
+
+    return new SafeArea(
+      child: new WillPopScope(
+          child: new Scaffold(
+            key: _key,
+            appBar: searchBar.build(context),
+            drawer: new Drawer(
+              child: new SafeArea(
+                child: new ListView(
+                  padding: EdgeInsets.zero,
+                  children: <Widget>[new Column(children: drawerOptions)],
+                ),
+              ),
+            ),
+            body: new SafeArea(
+              child: new StreamBuilder<int>(
+                stream: _myHomePageBloc.outputHomePageBody,
+                builder: (context, snapshot) {
+                  index = snapshot.hasData? snapshot.data : 0;
+                  return _getDrawerItemWidget(
+                      snapshot.hasData ? snapshot.data : 0);
+                },
+              ),
+            ),
           ),
-        ),
-      ),
-      body: new SafeArea(
-        child: new StreamBuilder<int>(
-          stream: _myHomePageBloc.outputHomePageBody,
-          builder: (context, snapshot) {
-            return _getDrawerItemWidget(snapshot.hasData ? snapshot.data : 3);
-          },
-        ),
-      ),
-    ) ,onWillPop: _onWillPop), );
+          onWillPop: _onWillPop),
+    );
   }
 }

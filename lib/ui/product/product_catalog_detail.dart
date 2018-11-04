@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:salbang/model/product.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/ui/product/product_catalog_detail_picture.dart';
@@ -8,6 +9,8 @@ import 'package:salbang/ui/product/product_catalog_detail_picture.dart';
 import 'product_catalog_detail_picture.dart';
 
 class ProductCatalogDetail extends StatefulWidget {
+  Product product;
+  ProductCatalogDetail({this.product});
   @override
   _ProductCatalogDetailState createState() => _ProductCatalogDetailState();
 }
@@ -94,12 +97,12 @@ class _ProductCatalogDetailState extends State<ProductCatalogDetail> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                buildProductDescriptionWidget('Nama', contoh),
-                buildProductDescriptionWidget('Ukuran', contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "),
-                buildProductDescriptionWidget('Tipe', contoh),
-                buildProductDescriptionWidget('Merk', contoh),
-                buildProductDescriptionWidget('Harga', contoh),
-                buildProductDescriptionWidget('Deskripsi', contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "+contoh+" "),
+                buildProductDescriptionWidget('Nama', widget.product.name),
+                buildProductDescriptionWidget('Ukuran', widget.product.size.toString() + " " + widget.product.productSize.name),
+                buildProductDescriptionWidget('Tipe', widget.product.productType.name),
+                buildProductDescriptionWidget('Merk',  widget.product.productBrand.name),
+                buildProductDescriptionWidget('Harga',  widget.product.price.toString()),
+                buildProductDescriptionWidget('Deskripsi', widget.product.description),
 
                 const SizedBox(
                   height: 4.0,
