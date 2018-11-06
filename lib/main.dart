@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/my_homepage_bloc.dart';
+import 'package:salbang/bloc/type_bloc.dart';
+import 'package:salbang/database/database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/ui/my_homepage.dart';
 
@@ -18,7 +20,11 @@ class MyApp extends StatelessWidget {
       theme: salbangTheme(),
       home: BlocProvider<MyHomePageBloc>(
         bloc: MyHomePageBloc(),
-        child: new MyHomePage(),
+        child : BlocProvider<TypeBloc>(
+          bloc: TypeBloc(DBHelper()),
+          child: new MyHomePage(),
+        )
+
       ),
     );
   }

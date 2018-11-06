@@ -25,7 +25,7 @@ class TypeBloc implements BlocBase{
   final PublishSubject<String> _outputOperationResult = new PublishSubject<String>();
   Observable<String> get outputOperationResult => _outputOperationResult.stream;
 
-  final PublishSubject<ResponseDatabase<List<ProductType>>> _outputListDataTypes = new PublishSubject<ResponseDatabase<List<ProductType>>>();
+  final BehaviorSubject<ResponseDatabase<List<ProductType>>> _outputListDataTypes = new BehaviorSubject<ResponseDatabase<List<ProductType>>>();
   Observable<ResponseDatabase<List<ProductType>>> get outputListDataTypes => _outputListDataTypes.stream;
 
   DBHelper _dbHelper;

@@ -114,7 +114,7 @@ class DBHelper {
       final List<Map<String, dynamic>> queryResult =
           await dbClient.query(BrandTable.NAME,
             columns: [BrandTable.COLUMN_NAME, BrandTable.COLUMN_DESCRIPTION, BrandTable.COLUMN_ID, BrandTable.COLUMN_STATUS],
-          where : 'name LIKE ?',
+          where : 'brand_name LIKE ?',
           whereArgs: ['%'+brandName+'%']);
       if (queryResult.isEmpty) {
         return ResponseDatabase<List<Brand>>(
@@ -202,7 +202,7 @@ class DBHelper {
           SizeTable.COLUMN_NAME,
           SizeTable.COLUMN_STATUS
           ],
-      where: 'name LIKE ?',
+      where: 'size_name LIKE ?',
       whereArgs: ['%'+sizeName+'%']);
       if (response.isEmpty) {
         return ResponseDatabase<List<ProductSize>>(
