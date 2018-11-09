@@ -55,18 +55,12 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true,
         backgroundColor: colorAppbar,
         title: const Text("Sal-Bang"),
-        actions: [
-          searchBar.getSearchAction(context),]
     );
   }
 
 
   void onSearchBarSubmitted(String query) {
-    if(index == 2)
-    {
-      print("get in");
-      _typeBloc.getTypesData(typeName: query);
-    }
+
   }
 
   void onSearchBarClosed() {
