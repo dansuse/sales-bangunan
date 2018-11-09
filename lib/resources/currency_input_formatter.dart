@@ -12,9 +12,10 @@ class CurrencyInputFormatter extends TextInputFormatter {
 
     double value = double.parse(newValue.text);
 
-    final formatter =  new NumberFormat("#,##0.00", "id_ID");
+    //final formatter =  new NumberFormat("#,##0.00", "id_ID");
+    final formatter =  new NumberFormat.simpleCurrency(locale: "id_ID");
 
-    String newText = formatter.format(value/100);
+    String newText = formatter.format(value);
 
     return newValue.copyWith(
         text: newText,

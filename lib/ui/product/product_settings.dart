@@ -44,10 +44,15 @@ class _ProductSettingsState extends State<ProductSettings> {
   ProductBloc productBloc;
   StreamSubscription productOperationSubscription;
   List<File> _image;
+  Color labelColor;
+  Color selectedCupertinoColor;
   @override
   void initState() {
     super.initState();
-    _image = new List<File>();
+    labelColor = Colors.black54;
+    //selectedCupertinoColor = CupertinoColors.inactiveGray;
+    selectedCupertinoColor = CupertinoColors.black;
+    _image = <File>[];
     _inputProductNameController = TextEditingController();
     _inputProductPriceController = TextEditingController();
     _inputProductStockController = TextEditingController();
@@ -56,7 +61,7 @@ class _ProductSettingsState extends State<ProductSettings> {
     _cupertinoPickerBloc = CupertinoPickerBloc(DBHelper());
     if (widget.product == null) {
       _inputProductNameController.text = "Susu Cap Tiga";
-      _inputProductPriceController.text = "200000";
+      //_inputProductPriceController.text = "200000";
       _inputProductStockController.text = "50";
       _inputProductDescriptionController.text = "mantap";
       _inputProductSizeController.text = "500";
@@ -99,58 +104,11 @@ class _ProductSettingsState extends State<ProductSettings> {
     });
   }
 
-  Future getImage(ImageSource imageSource) async {
-    var image = await ImagePicker.pickImage(source: imageSource);
-    _image.add(image);
-
-    for (var x in _image) {
-      print(x);
-    }
-
-    setState(() {});
-  }
-
-  Future<void> chooseCameraOrGallery() async {
-    return showModalBottomSheet<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return new Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              new ListTile(
-                leading: new Icon(Icons.camera_alt),
-                title: new Text(
-                  "Camera",
-                  style: Theme.of(context).primaryTextTheme.display2,
-                ),
-                onTap: () {
-                  getImage(ImageSource.camera);
-                },
-              ),
-              new ListTile(
-                leading: new Icon(
-                  Icons.camera,
-                ),
-                title: new Text(
-                  "Gallery",
-                  style: Theme.of(context).primaryTextTheme.display2,
-                ),
-                onTap: () {
-                  getImage(ImageSource.gallery);
-                },
-              ),
-            ],
-          );
-        });
-  }
-
   @override
   Widget build(BuildContext context) {
     initBloc();
     if (widget.product == null) {
-      _cupertinoPickerBloc.getBrandsStatusActive();
-      _cupertinoPickerBloc.getSizesStatusActive();
-      _cupertinoPickerBloc.getTypesStatusActive();
+      _cupertinoPickerBloc.populateProductAttributes();
     }
 
     return new SafeArea(
@@ -197,10 +155,13 @@ class _ProductSettingsState extends State<ProductSettings> {
                 children: <Widget>[
                   new TextFormField(
                     controller: _inputProductNameController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: UnderlineInputBorder(
                           borderSide: BorderSide(color: colorBlack)),
                       labelText: 'Nama Produk',
+                      labelStyle: TextStyle(
+                        color: labelColor
+                      ),
                       contentPadding:
                           EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
                     ),
@@ -215,11 +176,13 @@ class _ProductSettingsState extends State<ProductSettings> {
                       WhitelistingTextInputFormatter.digitsOnly,
                       new CurrencyInputFormatter(),
                     ],
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: UnderlineInputBorder(
                           borderSide: BorderSide(color: colorBlack)),
                       labelText: 'Harga Produk',
-                      prefix: Text('Rp. '),
+                      labelStyle: TextStyle(
+                          color: labelColor
+                      ),
                       contentPadding:
                           EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
                     ),
@@ -233,10 +196,13 @@ class _ProductSettingsState extends State<ProductSettings> {
                     inputFormatters: <TextInputFormatter>[
                       WhitelistingTextInputFormatter.digitsOnly,
                     ],
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: UnderlineInputBorder(
                           borderSide: BorderSide(color: colorBlack)),
                       labelText: 'Stok Produk',
+                      labelStyle: TextStyle(
+                          color: labelColor
+                      ),
                       contentPadding:
                           EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
                     ),
@@ -247,10 +213,13 @@ class _ProductSettingsState extends State<ProductSettings> {
                   new TextFormField(
                     controller: _inputProductDescriptionController,
                     maxLines: 5,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: UnderlineInputBorder(
                           borderSide: BorderSide(color: colorBlack)),
                       labelText: 'Deskripsi Produk',
+                      labelStyle: TextStyle(
+                          color: labelColor
+                      ),
                       contentPadding:
                           EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
                     ),
@@ -270,10 +239,13 @@ class _ProductSettingsState extends State<ProductSettings> {
                         child: new TextFormField(
                           controller: _inputProductSizeController,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             border: UnderlineInputBorder(
                                 borderSide: BorderSide(color: colorBlack)),
                             labelText: 'Ukuran Produk',
+                            labelStyle: TextStyle(
+                                color: labelColor
+                            ),
                             contentPadding: EdgeInsets.symmetric(
                                 vertical: 0.0, horizontal: 0.0),
                           ),
@@ -290,19 +262,27 @@ class _ProductSettingsState extends State<ProductSettings> {
                     height: 8.0,
                   ),
                   new StreamBuilder(
-                    initialData: ButtonState.IDLE,
-                    stream: productBloc.outputButtonState,
-                    builder: (context, snapshot) => new RaisedButton(
-                          child: snapshot.data == ButtonState.IDLE
-                              ? const Text('Tambahkan')
-                              : const Center(
-                                  child: CircularProgressIndicator()),
-                          onPressed: snapshot.data == ButtonState.LOADING
-                              ? null
-                              : () {
-                                  onButtonPressed();
-                                },
-                        ),
+                    initialData: ButtonState.DISABLED,
+                    stream: _cupertinoPickerBloc.outputButtonState,
+                    builder: (context, snapshot) {
+                      if(snapshot.data == ButtonState.IDLE){
+                        return new RaisedButton(
+                          child: const Text('Tambahkan'),
+                          onPressed: onButtonPressed,
+                        );
+                      } else if(snapshot.data == ButtonState.LOADING){
+                        return const RaisedButton(
+                          child: Center(
+                              child: CircularProgressIndicator()),
+                          onPressed: null,
+                        );
+                      } else if(snapshot.data == ButtonState.DISABLED){
+                        return const RaisedButton(
+                          child: const Text('Tambahkan'),
+                          onPressed: null,
+                        );
+                      }
+                    },
                   ),
                 ],
               ),
@@ -316,11 +296,20 @@ class _ProductSettingsState extends State<ProductSettings> {
   void onButtonPressed() {
     if (!_cupertinoPickerBloc.selectedBrand.isEmpty() &&
         !_cupertinoPickerBloc.selectedType.isEmpty() &&
-        !_cupertinoPickerBloc.selectedSize.isEmpty()) {
+        !_cupertinoPickerBloc.selectedSize.isEmpty()
+        && _inputProductNameController.text.isNotEmpty
+        && _inputProductPriceController.text.isNotEmpty
+        && _inputProductStockController.text.isNotEmpty
+        && _inputProductDescriptionController.text.isNotEmpty
+        && _inputProductSizeController.text.isNotEmpty
+    ) {
+      String unformattedPrice = _inputProductPriceController.value.text.toString();
+      unformattedPrice = unformattedPrice.replaceAll(".", "");
+      unformattedPrice = unformattedPrice.replaceAll("Rp", "");
       productBloc.insertOrUpdateProduct(
           (widget.product == null) ? DBHelper.ID_FOR_INSERT : widget.product.id,
           _inputProductNameController.text,
-          double.parse(_inputProductPriceController.text),
+          double.parse(unformattedPrice),
           int.parse(_inputProductStockController.text),
           _inputProductDescriptionController.text,
           int.parse(_inputProductSizeController.text),
@@ -329,7 +318,7 @@ class _ProductSettingsState extends State<ProductSettings> {
           _cupertinoPickerBloc.selectedType.idInformation);
     } else {
       _keyScaffold.currentState.showSnackBar(SnackbarBuilder.getSnackbar(
-          "Pastikan merk, type, dan size tidak kosong", StringConstant.OK));
+          "Pastikan semua field terisi", StringConstant.OK));
     }
   }
 
@@ -375,13 +364,19 @@ class _ProductSettingsState extends State<ProductSettings> {
                           _cupertinoPickerBloc.selectedBrand.index);
                     },
               child: _buildMenu(<Widget>[
-                const Text('Merk'),
+                Text('Merk',
+                  style: TextStyle(color: labelColor),),
                 new StreamBuilder<CupertinoData>(
                   initialData: CupertinoData.empty(),
                   stream: _cupertinoPickerBloc.outputSelectBrand,
-                  builder: (context, snapshotSelectedItem) =>
-                      buildSelectedCupertinoItemText(
-                          snapshotSelectedItem.data.information),
+                  builder: (context, snapshotSelectedItem){
+                    if(snapshotSelectedItem.data.isEmpty()){
+                      return buildSelectedCupertinoItemText("Tidak ada data merk");
+                    }else{
+                      return buildSelectedCupertinoItemText(
+                          snapshotSelectedItem.data.information);
+                    }
+                  },
                 ),
               ]),
             );
@@ -416,9 +411,14 @@ class _ProductSettingsState extends State<ProductSettings> {
                 child: new StreamBuilder<CupertinoData>(
                   initialData: CupertinoData.empty(),
                   stream: _cupertinoPickerBloc.outputSelectSize,
-                  builder: (context, snapshotSelectedItem) =>
-                      buildSelectedCupertinoItemText(
-                          snapshotSelectedItem.data.information),
+                  builder: (context, snapshotSelectedItem){
+                    if(snapshotSelectedItem.data.isEmpty()){
+                      return buildSelectedCupertinoItemText("Tidak ada data size");
+                    }else{
+                      return buildSelectedCupertinoItemText(
+                          snapshotSelectedItem.data.information);
+                    }
+                  },
                 ),
               ),
             );
@@ -449,13 +449,18 @@ class _ProductSettingsState extends State<ProductSettings> {
                       );
                     },
               child: _buildMenu(<Widget>[
-                const Text('Tipe'),
+                Text('Tipe',
+                style: TextStyle(color: labelColor),),
                 new StreamBuilder<CupertinoData>(
                   initialData: CupertinoData.empty(),
                   stream: _cupertinoPickerBloc.outputSelectType,
-                  builder: (context, snapshotSelectedType) {
-                    return buildSelectedCupertinoItemText(
-                        snapshotSelectedType.data.information);
+                  builder: (context, snapshotSelectedItem) {
+                    if(snapshotSelectedItem.data.isEmpty()){
+                      return buildSelectedCupertinoItemText("Tidak ada data type");
+                    }else{
+                      return buildSelectedCupertinoItemText(
+                          snapshotSelectedItem.data.information);
+                    }
                   },
                 ),
               ]),
@@ -478,7 +483,7 @@ class _ProductSettingsState extends State<ProductSettings> {
   Widget buildSelectedCupertinoItemText(String selectedItem) {
     return Text(
       selectedItem,
-      style: const TextStyle(color: CupertinoColors.inactiveGray),
+      style: TextStyle(color: selectedCupertinoColor),
       overflow: TextOverflow.fade,
       softWrap: false,
       textAlign: TextAlign.right,
@@ -600,15 +605,15 @@ class _ProductSettingsState extends State<ProductSettings> {
               : Column(
                   children: <Widget>[
                     new Expanded(
-                        child: buildDummyProductImage(context,
+                        child: buildProductImageWidget(context,
                             imagePath: _image[position - 1],
-                            position: (position - 1))),
+                            position: position - 1)),
                   ],
                 );
         });
   }
 
-  Widget buildDummyProductImage(BuildContext context,
+  Widget buildProductImageWidget(BuildContext context,
       {File imagePath, int position}) {
     return new Container(
         width: MediaQuery.of(context).size.width / 2,
@@ -621,13 +626,12 @@ class _ProductSettingsState extends State<ProductSettings> {
               new Positioned(
                 right: 0.0,
                 child: new IconButton(
-                    icon: new Icon(Icons.cancel), onPressed: () {
+                    icon: const Icon(Icons.cancel), onPressed: () {
 //                      var dir = new Directory(imagePath.toString());
-                        imagePath.deleteSync(recursive: true);
+                      imagePath.deleteSync(recursive: true);
                       _image.removeAt(position);
                       imageCache.clear();
                       setState(() {
-
                       });
                 }),
               ),
@@ -653,5 +657,48 @@ class _ProductSettingsState extends State<ProductSettings> {
         ),
       ),
     );
+  }
+
+  Future<void> chooseCameraOrGallery() async {
+    return showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return new Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            new ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: new Text(
+                "Camera",
+                style: Theme.of(context).primaryTextTheme.display2,
+              ),
+              onTap: () {
+                getImage(ImageSource.camera);
+              },
+            ),
+            new ListTile(
+              leading: const Icon(
+                Icons.camera,
+              ),
+              title: new Text(
+                "Gallery",
+                style: Theme.of(context).primaryTextTheme.display2,
+              ),
+              onTap: () {
+                getImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future getImage(ImageSource imageSource) async {
+    final File image = await ImagePicker.pickImage(source: imageSource);
+    if(image != null){
+      _image.add(image);
+      setState(() {});
+    }
   }
 }

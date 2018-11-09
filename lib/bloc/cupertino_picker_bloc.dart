@@ -4,6 +4,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:salbang/cupertino_data.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/model/brand.dart';
+import 'package:salbang/model/button_state.dart';
 import 'package:salbang/model/product_size.dart';
 import 'package:salbang/model/product_type.dart';
 import 'package:salbang/model/response_database.dart';
@@ -19,6 +20,9 @@ class CupertinoPickerBloc implements BlocBase{
   final _outputGetBrands  = BehaviorSubject<ResponseDatabase<List<CupertinoData>>>();
   final _outputGetSizes  = BehaviorSubject<ResponseDatabase<List<CupertinoData>>>();
   final _outputGetTypes  = BehaviorSubject<ResponseDatabase<List<CupertinoData>>>();
+
+  final BehaviorSubject<ButtonState> _outputButtonState = new BehaviorSubject<ButtonState>();
+  Observable<ButtonState> get outputButtonState => _outputButtonState.stream;
 
   StreamSink<int> get inputSelectBrand => _inputSelectBrand.sink;
   StreamSink<int> get inputSelectType => _inputSelectType.sink;
@@ -91,7 +95,20 @@ class CupertinoPickerBloc implements BlocBase{
     _outputSelectSize.add(selectedSize);
   }
 
-  Future<void> getBrandsStatusActive()async{
+  Future<void> populateProductAttributes()async{
+    final ResponseDatabase<List<CupertinoData>> responseBrands = await getBrandsStatusActive();
+    final ResponseDatabase<List<CupertinoData>> responseSizes = await getSizesStatusActive();
+    final ResponseDatabase<List<CupertinoData>> responseTypes = await getTypesStatusActive();
+    if(responseBrands.result == ResponseDatabase.SUCCESS &&
+        responseSizes.result == ResponseDatabase.SUCCESS &&
+        responseTypes.result == ResponseDatabase.SUCCESS){
+      _outputButtonState.add(ButtonState.IDLE);
+    }else{
+      _outputButtonState.add(ButtonState.DISABLED);
+    }
+  }
+
+  Future<ResponseDatabase<List<CupertinoData>>> getBrandsStatusActive()async{
     print("terpanggil getBrandsStatusActive(), dgn kondisi selectedbrand:" + (selectedBrand == null).toString());
     final ResponseDatabase<List<Brand>> responseBrands = await _dbHelper.getBrands();
 
@@ -104,6 +121,7 @@ class CupertinoPickerBloc implements BlocBase{
     }
     final ResponseDatabase<List<CupertinoData>> result = ResponseDatabase
         .fromAnotherResponse(responseBrands);
+
     result.data = dataBrandsCupertino;
     _outputGetBrands.add(result);
 
@@ -115,46 +133,59 @@ class CupertinoPickerBloc implements BlocBase{
       }
       _outputSelectBrand.add(selectedBrand);
     }
+
+    return result;
   }
 
-  Future<void> getSizesStatusActive()async{
+  Future<ResponseDatabase<List<CupertinoData>>> getSizesStatusActive()async{
     final ResponseDatabase<List<ProductSize>> response = await _dbHelper.getProductSizes();
     dataSizesCupertino = <CupertinoData>[];
     if(response.result == ResponseDatabase.SUCCESS){
-      for(int i = 0 ; i < response.data.length; i++)
-      {
-        dataSizesCupertino.add(CupertinoData(i, response.data[i].id, response.data[i].name));
+      for(int i = 0 ; i < response.data.length; i++) {
+        dataSizesCupertino.add(CupertinoData(i,
+            response.data[i].id, response.data[i].name));
       }
     }
     final ResponseDatabase<List<CupertinoData>> responseCupertinoData
       = new ResponseDatabase.fromAnotherResponse(response);
     responseCupertinoData.data = dataSizesCupertino;
     _outputGetSizes.add(responseCupertinoData);
-    if(dataSizesCupertino.isNotEmpty){
-      selectedSize = dataSizesCupertino[0];
-    }else{
-      selectedSize = CupertinoData.empty();
+
+    if(selectedSize == null){
+      if(dataSizesCupertino.isNotEmpty){
+        selectedSize = dataSizesCupertino[0];
+      }else{
+        selectedSize = CupertinoData.empty();
+      }
+      _outputSelectSize.add(selectedSize);
     }
-    _outputSelectSize.add(selectedSize);
+    return responseCupertinoData;
   }
 
-  Future<void> getTypesStatusActive()async{
+  Future<ResponseDatabase<List<CupertinoData>>> getTypesStatusActive()async{
     final ResponseDatabase<List<ProductType>> response = await _dbHelper.getProductTypes();
     dataTypesCupertino = <CupertinoData>[];
-    for(int i = 0 ; i < response.data.length; i++)
-    {
-      dataTypesCupertino.add(CupertinoData(i,response.data[i].id, response.data[i].name));
+    if(response.result == ResponseDatabase.SUCCESS){
+      for(int i = 0 ; i < response.data.length; i++) {
+        dataTypesCupertino.add(CupertinoData(i,
+            response.data[i].id, response.data[i].name));
+      }
     }
+
     final ResponseDatabase<List<CupertinoData>> responseCupertinoData
     = new ResponseDatabase.fromAnotherResponse(response);
     responseCupertinoData.data = dataTypesCupertino;
     _outputGetTypes.add(responseCupertinoData);
-    if(dataTypesCupertino.isNotEmpty){
-      selectedType = dataTypesCupertino[0];
-    }else{
-      selectedType = CupertinoData.empty();
+
+    if(selectedType == null){
+      if(dataTypesCupertino.isNotEmpty){
+        selectedType = dataTypesCupertino[0];
+      }else{
+        selectedType = CupertinoData.empty();
+      }
+      _outputSelectType.add(selectedType);
     }
-    _outputSelectType.add(selectedType);
+    return responseCupertinoData;
   }
 
   void PickBrand(int index){
