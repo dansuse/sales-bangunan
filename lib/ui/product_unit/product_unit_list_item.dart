@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/product_bloc.dart';
-import 'package:salbang/bloc/size_bloc.dart';
+import 'package:salbang/bloc/unit_bloc.dart';
 import 'package:salbang/model/product.dart';
-import 'package:salbang/model/product_size.dart';
+import 'package:salbang/model/product_unit.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/resources/string_constant.dart';
-import 'package:salbang/ui/product_size/product_size_update_layout.dart';
+import 'package:salbang/ui/product_unit/product_unit_update_layout.dart';
 
-class ProductSizeMasterList extends StatefulWidget {
-  final ProductSize productSize;
-  ProductSizeMasterList(this.productSize);
+class ProductUnitListItem extends StatefulWidget {
+  final ProductUnit productUnit;
+  ProductUnitListItem(this.productUnit);
   @override
-  _ProductSizeMasterListState createState() => _ProductSizeMasterListState();
+  _ProductUnitListItemState createState() => _ProductUnitListItemState();
 }
 
-class _ProductSizeMasterListState extends State<ProductSizeMasterList> {
+class _ProductUnitListItemState extends State<ProductUnitListItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -25,20 +25,20 @@ class _ProductSizeMasterListState extends State<ProductSizeMasterList> {
         children: <Widget>[
           new Expanded(
               child: new Text(
-                widget.productSize.name,
+                widget.productUnit.name,
                 softWrap: false,
                 overflow: TextOverflow.fade,
                 style: Theme.of(context).primaryTextTheme.display2,
               )),
-          widget.productSize.status == 1 ? new IconButton(
+          widget.productUnit.status == 1 ? new IconButton(
             icon: new Icon(Icons.edit),
             onPressed: () {
               NavigationUtil.navigateToAnyWhere(
-                context, ProductSizeUpdateLayout(productSize: widget.productSize,),);
+                context, ProductUnitUpdateLayout(productUnit: widget.productUnit,),);
             },
             color: colorEdit,
           ) : new Container(),
-          widget.productSize.status == 1 ?
+          widget.productUnit.status == 1 ?
           new IconButton(
               icon: new Icon(Icons.delete),
               onPressed: () {
@@ -57,12 +57,12 @@ class _ProductSizeMasterListState extends State<ProductSizeMasterList> {
 
   void showRestoreDialog(BuildContext context){
     showDialog(context: context, builder: (_) => new AlertDialog(
-      title : const Text("Restore Size"),
+      title : const Text("${StringConstant.RESTORE} ${StringConstant.UNIT}"),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           new Text(StringConstant.getRestoreConfirmationMessageInMaster
-            ("size dengan nama ${widget.productSize.name}", "dengan size ${widget.productSize.name}")
+            ("${StringConstant.UNIT} dengan nama ${widget.productUnit.name}", "dengan ${StringConstant.UNIT} ${widget.productUnit.name}")
           ),
         ],
       ),
@@ -70,8 +70,18 @@ class _ProductSizeMasterListState extends State<ProductSizeMasterList> {
         new Row(
           mainAxisAlignment : MainAxisAlignment.end,
           children: <Widget>[
-            new FlatButton(onPressed: (){closeDialog(context);}, child: const Text(StringConstant.DELETE_CANCEL,style: TextStyle(color: colorDelete),)),
-            new FlatButton(onPressed: (){restoreSize(context);}, child: const Text(StringConstant.DELETE_OK,style: TextStyle(color: colorButtonAdd),)),
+            new FlatButton(
+                onPressed: (){closeDialog(context);},
+                child: const Text(StringConstant.DELETE_CANCEL,
+                  style: TextStyle(color: colorDelete),
+                )
+            ),
+            new FlatButton(
+                onPressed: (){restoreSize(context);},
+                child: const Text(StringConstant.DELETE_OK,
+                  style: TextStyle(color: colorButtonAdd),
+                ),
+            ),
           ],
         )
       ],
@@ -80,21 +90,21 @@ class _ProductSizeMasterListState extends State<ProductSizeMasterList> {
 
   void restoreSize(BuildContext context){
     closeDialog(context);
-    BlocProvider.of<SizeBloc>(context).restoreSize(widget.productSize);
+    BlocProvider.of<UnitBloc>(context).restoreUnit(widget.productUnit);
   }
 
   void showDeleteDialog(BuildContext context){
     showDialog(context: context, builder: (_) => new AlertDialog(
-      title : const Text("Delete Size"),
+      title : const Text("Delete ${StringConstant.UNIT}"),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           new Text(StringConstant.getDeleteConfirmationMessageInMaster
-            ("size dengan nama ${widget.productSize.name}", "dengan size ${widget.productSize.name}")
+            ("${StringConstant.UNIT} dengan nama ${widget.productUnit.name}", "dengan ${StringConstant.UNIT} ${widget.productUnit.name}")
           ),
-          Text('Produk terkait :'),
+          Text(StringConstant.RELATED_PRODUCT),
           new FutureBuilder<List<Product>>(
-            future: BlocProvider.of<ProductBloc>(context).getProductBySize(widget.productSize.id),
+            future: BlocProvider.of<ProductBloc>(context).getProductBySize(widget.productUnit.id),
             builder: (context, snapshot){
               if(snapshot.hasData){
                 if(snapshot.data.isNotEmpty){
@@ -104,7 +114,7 @@ class _ProductSizeMasterListState extends State<ProductSizeMasterList> {
                     },
                   );
                 }else{
-                  return Text('Tidak ada produk terkait');
+                  return Text(StringConstant.NO_RELATED_PRODUCT);
                 }
               }
               return CircularProgressIndicator();
@@ -116,8 +126,14 @@ class _ProductSizeMasterListState extends State<ProductSizeMasterList> {
         new Row(
           mainAxisAlignment : MainAxisAlignment.end,
           children: <Widget>[
-            new FlatButton(onPressed: (){closeDialog(context);}, child: const Text(StringConstant.DELETE_CANCEL,style: TextStyle(color: colorDelete),)),
-            new FlatButton(onPressed: (){deleteSize(context);}, child: const Text(StringConstant.DELETE_OK,style: TextStyle(color: colorButtonAdd),)),
+            new FlatButton(
+                onPressed: (){closeDialog(context);},
+                child: const Text(StringConstant.DELETE_CANCEL,
+                  style: TextStyle(color: colorDelete),)),
+            new FlatButton(
+                onPressed: (){deleteSize(context);},
+                child: const Text(StringConstant.DELETE_OK,
+                  style: TextStyle(color: colorButtonAdd),)),
           ],
         )
       ],
@@ -126,7 +142,7 @@ class _ProductSizeMasterListState extends State<ProductSizeMasterList> {
 
   void deleteSize(BuildContext context){
     closeDialog(context);
-    BlocProvider.of<SizeBloc>(context).deleteSize(widget.productSize.id);
+    BlocProvider.of<UnitBloc>(context).deleteUnit(widget.productUnit.id);
   }
 
   void closeDialog(BuildContext context){

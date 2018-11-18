@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/product_bloc.dart';
+import 'package:salbang/bloc/unit_bloc.dart';
 import 'package:salbang/database/database.dart';
-import 'package:salbang/model/product.dart';
+import 'package:salbang/model/product_unit.dart';
 import 'package:salbang/model/response_database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
@@ -9,25 +10,19 @@ import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/resources/string_constant.dart';
 import 'package:salbang/ui/global_widget/flutter_search_bar_base.dart';
 import 'package:salbang/ui/global_widget/progress_indicator_builder.dart';
-import 'package:salbang/ui/product/product_catalog_detail.dart';
-import 'package:salbang/ui/product/product_catalog_list_items.dart';
+import 'package:salbang/ui/product/product_catalog.dart';
 
-class ProductCatalog extends StatefulWidget {
-  int typeId, brandId, unitId;
-  ProductCatalog({
-    this.typeId = DBHelper.PARAM_NOT_SET,
-    this.brandId = DBHelper.PARAM_NOT_SET,
-    this.unitId = DBHelper.PARAM_NOT_SET});
+class ProductUnitCatalog extends StatefulWidget {
   @override
-  _ProductState createState() => _ProductState();
+  _ProductUnitCatalogState createState() => _ProductUnitCatalogState();
 }
 
-class _ProductState extends State<ProductCatalog> {
-  ProductBloc productBloc;
+class _ProductUnitCatalogState extends State<ProductUnitCatalog> {
+  UnitBloc unitBloc;
 
   SearchBar searchBar;
 
-  _ProductState() {
+  _ProductUnitCatalogState() {
     searchBar = new SearchBar(
       inBar: false,
       buildDefaultAppBar: renderAppBar,
@@ -45,33 +40,29 @@ class _ProductState extends State<ProductCatalog> {
         elevation: 0.0,
         centerTitle: true,
         backgroundColor: colorAppbar,
-        title: const Text("Katalog Produk"),
+        title: const Text("Katalog ${StringConstant.UNIT}"),
         actions: [
           searchBar.getSearchAction(context),
         ]);
   }
 
   void onSearchBarSubmitted(String query) {
-    productBloc.getProductsForCatalog(
-        productName: query, brandId: widget.brandId, typeId: widget.typeId);
+    unitBloc.getUnitsForCatalog(query: query);
   }
 
   void onSearchBarClosed() {
-    productBloc.getProductsForCatalog();
+    unitBloc.getUnitsForCatalog();
   }
 
   @override
   Widget build(BuildContext context) {
-    productBloc = BlocProvider.of<ProductBloc>(context);
-    productBloc.getProductsForCatalog(
-        brandId: widget.brandId,
-        typeId: widget.typeId);
-    return new SafeArea(
-        child: new Scaffold(
+    unitBloc = BlocProvider.of<UnitBloc>(context);
+    unitBloc.getUnitsForCatalog();
+    return new Scaffold(
       appBar: searchBar.build(context),
       body: new Container(
-        child: new StreamBuilder<ResponseDatabase<List<Product>>>(
-          stream: productBloc.outputCatalogProducts,
+        child: new StreamBuilder<ResponseDatabase<List<ProductUnit>>>(
+          stream: unitBloc.outputProductUnits,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (snapshot.data.result == ResponseDatabase.SUCCESS) {
@@ -81,25 +72,42 @@ class _ProductState extends State<ProductCatalog> {
                       padding: const EdgeInsets.all(8.0),
                       sliver: new SliverGrid(
                         gridDelegate:
-                            new SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount:
-                                    MediaQuery.of(context).orientation ==
-                                            Orientation.portrait
-                                        ? 2
-                                        : 3,
-                                childAspectRatio: 2.0),
+                        new SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount:
+                            MediaQuery.of(context).orientation ==
+                                Orientation.portrait
+                                ? 2
+                                : 3,
+                            childAspectRatio: 3.0),
                         delegate: new SliverChildBuilderDelegate(
-                          (BuildContext context, int index) {
+                              (BuildContext context, int index) {
                             return new GestureDetector(
                               onTap: () {
                                 NavigationUtil.navigateToAnyWhere(
-                                    context,
-                                    new ProductCatalogDetail(
-                                      product: snapshot.data.data[index],
-                                    ));
+                                  context,
+                                  new BlocProvider<ProductBloc>(
+                                    bloc: ProductBloc(DBHelper()),
+                                    child: ProductCatalog(unitId: snapshot.data.data[index].id,),
+                                  ),
+                                );
                               },
-                              child: new ProductListItems(
-                                  snapshot.data.data[index]),
+                              child: new Card(
+                                child: new Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: new Wrap(
+                                    alignment: WrapAlignment.center,
+                                    crossAxisAlignment:
+                                    WrapCrossAlignment.center,
+                                    runAlignment: WrapAlignment.center,
+                                    children: <Widget>[
+                                      new Text(
+                                        snapshot.data.data[index].name,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             );
                           },
                           childCount: snapshot.data.data.length,
@@ -117,12 +125,12 @@ class _ProductState extends State<ProductCatalog> {
                   ResponseDatabase.ERROR_SHOULD_RETRY) {
                 return GestureDetector(
                   onTap: () {
-                    productBloc.getProductsForCatalog();
+                    unitBloc.getUnitsForCatalog();
                   },
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text('Tap to retry'),
+                      Text(StringConstant.ERROR_SHOULD_RETRY_LABEL),
                     ],
                   ),
                 );
@@ -133,8 +141,6 @@ class _ProductState extends State<ProductCatalog> {
           },
         ),
       ),
-    ));
+    );
   }
-
-
 }

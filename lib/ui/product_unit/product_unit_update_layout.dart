@@ -2,80 +2,84 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:salbang/bloc/size_bloc.dart';
+import 'package:salbang/bloc/unit_bloc.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/model/button_state.dart';
-import 'package:salbang/model/product_size.dart';
+import 'package:salbang/model/product_unit.dart';
 import 'package:salbang/resources/colors.dart';
+import 'package:salbang/resources/string_constant.dart';
 
-class ProductSizeUpdateLayout extends StatefulWidget {
-  ProductSize productSize;
-  ProductSizeUpdateLayout({this.productSize});
+class ProductUnitUpdateLayout extends StatefulWidget {
+  ProductUnit productUnit;
+  ProductUnitUpdateLayout({this.productUnit});
   @override
   _ProductSizeUpdateLayoutState createState() => _ProductSizeUpdateLayoutState();
 }
 
-class _ProductSizeUpdateLayoutState extends State<ProductSizeUpdateLayout> {
-  GlobalKey<ScaffoldState> _key = new GlobalKey<ScaffoldState>();
-  final _keyFormInsertSize = GlobalKey<FormState>();
-  TextEditingController _inputSizeNameController;
-  SizeBloc _sizeBloc;
+class _ProductSizeUpdateLayoutState extends State<ProductUnitUpdateLayout> {
+  final GlobalKey<ScaffoldState> _key = new GlobalKey<ScaffoldState>();
+  final keyForm = GlobalKey<FormState>();
+  TextEditingController nameController;
+  UnitBloc unitBloc;
   StreamSubscription<String> _blocOperationSubscription;
 
   @override
   void initState() {
     super.initState();
-    _inputSizeNameController = TextEditingController();
-    _inputSizeNameController.text = widget.productSize.name;
-    _sizeBloc = SizeBloc(DBHelper());
+    nameController = TextEditingController();
+    nameController.text = widget.productUnit.name;
+    unitBloc = UnitBloc(DBHelper());
   }
 
   @override
   void dispose() {
-    _inputSizeNameController.dispose();
-    _sizeBloc.dispose();
+    nameController.dispose();
+    unitBloc.dispose();
     super.dispose();
+  }
+
+  void initBloc()async{
+    if (_blocOperationSubscription != null) {
+      await _blocOperationSubscription.cancel();
+    }
+    _blocOperationSubscription =
+        unitBloc.outputDbOperationResult.listen((String message) {
+          _key.currentState.showSnackBar(SnackBar(content: Text(message)));
+        });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_blocOperationSubscription != null) {
-      _blocOperationSubscription.cancel();
-    }
-    _blocOperationSubscription =
-        _sizeBloc.outputOperationResult.listen((String message) {
-          _key.currentState.showSnackBar(SnackBar(content: Text(message)));
-        });
-
+    initBloc();
     return new SafeArea(
       child: new Scaffold(
         key: _key,
         appBar: new AppBar(
           backgroundColor: colorAppbar,
           elevation: 0.0,
-          title: new Text("Ubah Ukuran"),
+          title: new Text("Ubah ${StringConstant.UNIT}"),
         ),
         body: new Container(
           padding: const EdgeInsets.all(16.0),
           child: new ListView(
             children: <Widget>[
               new Form(
-                key: _keyFormInsertSize,
+                key: keyForm,
                 child: new Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     new TextFormField(
-                      controller: _inputSizeNameController,
+                      controller: nameController,
                       decoration: InputDecoration(
                         border: UnderlineInputBorder(
                             borderSide: new BorderSide(color: colorBlack)),
-                        labelText: "Ukuran Produk",
+                        labelText: "Nama ${StringConstant.UNIT}",
                         contentPadding: const EdgeInsets.symmetric(
                             vertical: 4.0, horizontal: 4.0),
                       ),
                       validator: (value) {
                         if (value.isEmpty) {
-                          return 'Kolom Nama Ukuran Wajib Diisi';
+                          return 'Kolom Nama ${StringConstant.UNIT} Wajib Diisi';
                         }
                       },
                     ),
@@ -85,35 +89,34 @@ class _ProductSizeUpdateLayoutState extends State<ProductSizeUpdateLayout> {
                     new Row(
                       children: <Widget>[
                         StreamBuilder<bool>(
-                            stream: _sizeBloc.outputSizeStatus,
-                            initialData: widget.productSize.status == 1? true : false,
+                            stream: unitBloc.outputUnitStatus,
+                            initialData: widget.productUnit.status == 1? true : false,
                             builder: (context, snapshot) => new Checkbox(
                               activeColor: colorButtonAdd,
                               value: snapshot.data,
                               onChanged: (bool newStatus) {
-                                newStatus ? widget.productSize.status = 1 : widget.productSize.status = 0;
-                                _sizeBloc.inputSizeStatus
-                                    .add(newStatus);
+                                newStatus ? widget.productUnit.status = 1 : widget.productUnit.status = 0;
+                                unitBloc.updateStatus(newStatus);
                               },
                             )),
                         Expanded(
-                          child: new Text("Status Aktif Ukuran"),
+                          child: new Text("Status Aktif ${StringConstant.UNIT}"),
                         )
                       ],
                     ),
                     StreamBuilder<ButtonState>(
-                      stream: _sizeBloc.outputButtonInsertSizeState,
+                      stream: unitBloc.outputButtonState,
                       initialData: ButtonState.IDLE,
                       builder: (context, snapshot) => new RaisedButton(
                         child: snapshot.data == ButtonState.IDLE
-                            ? new Text('Ubah')
-                            : const Text('PROCESSING'),
+                            ? const Text(StringConstant.UPDATE)
+                            : const Text(StringConstant.BUTTON_STATE_LOADING_LABEL),
                         onPressed: snapshot.data == ButtonState.IDLE
                             ? () {
-                          if (_keyFormInsertSize.currentState
+                          if (keyForm.currentState
                               .validate()) {
-                            widget.productSize.name = _inputSizeNameController.text.toString();
-                            _sizeBloc.inputUpdateSize.add(widget.productSize);
+                            widget.productUnit.name = nameController.text.toString();
+                            unitBloc.updateUnit(widget.productUnit);
                           }
                         }
                             : null,

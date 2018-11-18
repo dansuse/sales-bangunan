@@ -11,10 +11,6 @@ import 'package:salbang/ui/global_widget/flutter_search_bar_base.dart';
 import 'package:salbang/ui/global_widget/progress_indicator_builder.dart';
 import 'package:salbang/ui/product/product_catalog.dart';
 
-import 'package:salbang/ui/product/product_catalog_detail.dart';
-import 'package:salbang/ui/product/product_catalog_list_items.dart';
-import 'package:salbang/model/product.dart';
-
 class ProductTypeCatalog extends StatefulWidget {
   @override
   _ProductTypeState createState() => _ProductTypeState();

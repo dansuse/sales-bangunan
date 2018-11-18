@@ -54,9 +54,17 @@ class ProductBloc extends BlocBase{
   }
 
   //mendapatkan semua produk yang statusnya 1
-  Future<void> getProductsForCatalog({String productName = "", int typeId = -99, int brandId = -99})async{
+  Future<void> getProductsForCatalog({
+    String productName = "",
+    int typeId = DBHelper.PARAM_NOT_SET,
+    int brandId = DBHelper.PARAM_NOT_SET,
+    int unitId = DBHelper.PARAM_NOT_SET,
+  })async{
     final ResponseDatabase<List<Product>> response
-      = await dbHelper.getProductsForCatalog(productName: productName, typeId: typeId, brandId: brandId);
+      = await dbHelper.getProductsForCatalog(
+          productName: productName,
+          typeId: typeId,
+          brandId: brandId);
     _outputCatalogProducts.add(response);
   }
 

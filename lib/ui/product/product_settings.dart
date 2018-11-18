@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:salbang/bloc/cupertino_picker_bloc.dart';
 import 'package:salbang/bloc/product_bloc.dart';
 import 'package:salbang/cupertino_data.dart';
@@ -13,12 +13,10 @@ import 'package:salbang/database/database.dart';
 import 'package:salbang/model/button_state.dart';
 import 'package:salbang/model/product.dart';
 import 'package:salbang/model/response_database.dart';
-import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/currency_input_formatter.dart';
 import 'package:salbang/resources/string_constant.dart';
 import 'package:salbang/ui/global_widget/snackbar_builder.dart';
-import 'package:flutter/painting.dart';
 
 const double _kPickerSheetHeight = 216.0;
 const double _kPickerItemHeight = 32.0;

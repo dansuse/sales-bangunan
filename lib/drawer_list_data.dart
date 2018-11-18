@@ -1,23 +1,33 @@
 import 'package:salbang/drawer_items.dart';
 
 class DrawerListItemData{
-  DrawerListItemData(){}
+  static const int CATALOG_PRODUCT = 0;
+  static const int CATALOG_BRAND = 1;
+  static const int CATALOG_TYPE = 2;
+  static const int CATALOG_UNIT = 3;
+  static const int MASTER_PRODUCT = 4;
+  static const int MASTER_BRAND = 5;
+  static const int MASTER_TYPE = 6;
+  static const int MASTER_UNIT = 7;
+
+  DrawerListItemData();
   final List<DrawerItems> data = <DrawerItems>[
     DrawerItems(
       'Katalog',
       children: <DrawerItems>[
-        new DrawerItems('Produk', index: 0),
-        new DrawerItems('Merk Produk', index: 1),
-        new DrawerItems('Jenis Produk', index: 2),
+        DrawerItems('Produk', index: CATALOG_PRODUCT),
+        DrawerItems('Merk(Brand) Produk', index: CATALOG_BRAND),
+        DrawerItems('Jenis(Type) Produk', index: CATALOG_TYPE),
+        DrawerItems('Satuan(Unit) Produk', index: CATALOG_UNIT),
       ],
     ),
     DrawerItems(
       'Master',
       children: <DrawerItems>[
-        DrawerItems('Produk', index: 3),
-        DrawerItems('Merk(Brand) Produk', index: 4),
-        DrawerItems('Tipe(Type) Produk', index: 5),
-        DrawerItems('Ukuran(Size) Produk', index: 6),
+        DrawerItems('Produk', index: MASTER_PRODUCT),
+        DrawerItems('Merk(Brand) Produk', index: MASTER_BRAND),
+        DrawerItems('Jenis(Type) Produk', index: MASTER_TYPE),
+        DrawerItems('Satuan(Unit) Produk', index: MASTER_UNIT),
       ],
     ),
   ];
