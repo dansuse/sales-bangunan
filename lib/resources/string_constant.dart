@@ -21,4 +21,18 @@ class StringConstant{
   static const String MESSAGE_NO_DATA_AVAILABLE = 'Tidak ada data tersedia';
   static const String MESSAGE_TAP_TO_RETRY = 'Tap To Retry';
   static const String OK = 'OK';
+
+  static const String RESTORE = "Mengaktifkan kembali";
+  static const String RELATED_PRODUCT = "Produk terkait :";
+  static const String NO_RELATED_PRODUCT = "Tidak ada produk terkait";
+
+  static const String MASTER_UNIT = "Master Satuan";
+  static const String NO_DATA_AVAILABLE = "Tidak ada data tersedia";
+  static const String UNIT = "satuan";
+
+  static const String INSERT = "Tambahkan";
+  static const String UPDATE = "Ubah";
+  static const String BUTTON_STATE_LOADING_LABEL = "PROCESSING";
+
+  static const String ERROR_SHOULD_RETRY_LABEL = "Tap to retry";
 }

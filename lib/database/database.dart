@@ -14,6 +14,7 @@ import 'package:salbang/model/product_size.dart';
 import 'package:salbang/model/product_type.dart';
 import 'package:salbang/model/product_unit.dart';
 import 'package:salbang/model/response_database.dart';
+import 'package:salbang/resources/string_constant.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DBHelper {
@@ -21,6 +22,7 @@ class DBHelper {
   static const String DATABASE_NAME = 'salbang.db';
   static const int DATABASE_VERSION = 1;
   static const int ID_FOR_INSERT = -22;
+  static const int PARAM_NOT_SET = -99;
 
   Future<Database> get db async {
     if (_db != null) return _db;
@@ -191,7 +193,7 @@ class DBHelper {
       return ResponseDatabase(
           result: ResponseDatabase.SUCCESS,
           message: 'Delete size dengan id "${id}" sukses');
-    } on DatabaseException catch (e) {
+    } on DatabaseException catch (_) {
       return ResponseDatabase(
           result: ResponseDatabase.ERROR_SHOULD_RETRY,
           message: 'Delete size dengan id "${id}" gagal');
@@ -236,8 +238,146 @@ class DBHelper {
     }
   }
 
+  //============PRODUCT UNIT====================
+  Future<ResponseDatabase<ProductUnit>> insertOrUpdateUnit(
+      ProductUnit unit) async {
+    final bool isTryingInsert = unit.id == ID_FOR_INSERT;
+
+    try {
+      final Database dbClient = await db;
+      final Map<String, dynamic> dataToBeInserted = {
+        UnitTable.COLUMN_NAME: unit.name,
+        UnitTable.COLUMN_DESCRIPTION: unit.description,
+        UnitTable.COLUMN_STATUS: unit.status,
+      };
+      if (unit.id != ID_FOR_INSERT) {
+        dataToBeInserted.addAll({UnitTable.COLUMN_ID: unit.id});
+      }
+      unit.id = await dbClient.insert(UnitTable.NAME, dataToBeInserted,
+          conflictAlgorithm: ConflictAlgorithm.replace);
+      final String message = isTryingInsert
+          ? '${unit.name} dengan id "${unit.id} berhasil ditambahkan'
+          : '${unit.name} dengan id "${unit.id} berhasil diupdate';
+      return ResponseDatabase<ProductUnit>(
+        result: ResponseDatabase.SUCCESS,
+        data: unit,
+        message: message,
+      );
+    } on DatabaseException catch (_) {
+      final String errorMessage = isTryingInsert
+          ? 'Terjadi error saat coba insert ${StringConstant.UNIT} pada database'
+          : 'Terjadi error saat coba update ${StringConstant.UNIT} pada database';
+      return ResponseDatabase<ProductUnit>(
+        result: ResponseDatabase.ERROR_SHOULD_RETRY,
+        message: errorMessage,
+      );
+    }
+  }
+
+  Future<ResponseDatabase> deleteUnit(int id) async {
+    try {
+      final Database dbClient = await db;
+      final Map<String, dynamic> valueToBeUpdated = {
+        UnitTable.COLUMN_STATUS: 0,
+      };
+      dbClient.update(UnitTable.NAME, valueToBeUpdated,
+          where: UnitTable.COLUMN_ID + ' = ?', whereArgs: [id]);
+      return ResponseDatabase(
+          result: ResponseDatabase.SUCCESS,
+          message: 'Delete ${StringConstant.UNIT} dengan id "${id}" sukses');
+    } on DatabaseException catch (_) {
+      return ResponseDatabase(
+          result: ResponseDatabase.ERROR_SHOULD_RETRY,
+          message: 'Delete ${StringConstant.UNIT} dengan id "${id}" gagal');
+    }
+  }
+  
+  Future<ResponseDatabase<List<ProductUnit>>> getProductUnits(
+      {String query = ''}) async {
+    try {
+      final Database dbClient = await db;
+      final List<Map<String, dynamic>> response = await dbClient.query(
+          UnitTable.NAME,
+          columns: <String>[
+            UnitTable.COLUMN_ID,
+            UnitTable.COLUMN_NAME,
+            UnitTable.COLUMN_DESCRIPTION,
+            UnitTable.COLUMN_STATUS
+          ],
+          where: '${UnitTable.COLUMN_NAME} LIKE ?',
+          whereArgs: ['%${query}%']);
+      if (response.isEmpty) {
+        return ResponseDatabase<List<ProductUnit>>(
+            result: ResponseDatabase.SUCCESS_EMPTY);
+      } else {
+        final List<ProductUnit> productUnits =
+        response.map((Map<String, dynamic> item) {
+          return new ProductUnit(
+            item[UnitTable.COLUMN_NAME],
+            item[UnitTable.COLUMN_DESCRIPTION],
+            id: item[UnitTable.COLUMN_ID],
+            status: item[UnitTable.COLUMN_STATUS],
+          );
+        }).toList();
+        return ResponseDatabase<List<ProductUnit>>(
+          result: ResponseDatabase.SUCCESS,
+          data: productUnits,
+        );
+      }
+    } on DatabaseException catch (_) {
+      return ResponseDatabase<List<ProductUnit>>(
+        result: ResponseDatabase.ERROR_SHOULD_RETRY,
+        message: 'Terjadi error saat coba mendapatkan Product Unit dari database',
+      );
+    }
+  }
+
+  Future<ResponseDatabase<List<ProductUnit>>> getProductUnitsForCatalog(
+      {String query = ''}) async {
+    try {
+      final Database dbClient = await db;
+      final List<Map<String, dynamic>> response = await dbClient.query(
+          UnitTable.NAME,
+          columns: <String>[
+            UnitTable.COLUMN_ID,
+            UnitTable.COLUMN_NAME,
+            UnitTable.COLUMN_DESCRIPTION,
+            UnitTable.COLUMN_STATUS
+          ],
+          where: '${UnitTable.COLUMN_NAME} LIKE ? AND ${UnitTable.COLUMN_STATUS} = 1',
+          whereArgs: ['%${query}%']);
+      if (response.isEmpty) {
+        return ResponseDatabase<List<ProductUnit>>(
+            result: ResponseDatabase.SUCCESS_EMPTY);
+      } else {
+        final List<ProductUnit> productUnits =
+        response.map((Map<String, dynamic> item) {
+          return new ProductUnit(
+            item[UnitTable.COLUMN_NAME],
+            item[UnitTable.COLUMN_DESCRIPTION],
+            id: item[UnitTable.COLUMN_ID],
+            status: item[UnitTable.COLUMN_STATUS],
+          );
+        }).toList();
+        return ResponseDatabase<List<ProductUnit>>(
+          result: ResponseDatabase.SUCCESS,
+          data: productUnits,
+        );
+      }
+    } on DatabaseException catch (_) {
+      return ResponseDatabase<List<ProductUnit>>(
+        result: ResponseDatabase.ERROR_SHOULD_RETRY,
+        message: 'Terjadi error saat coba mendapatkan Product Unit dari database',
+      );
+    }
+  }
+
   Future<ResponseDatabase<List<Product>>> getProductsForCatalog(
-      {String productName = '', int typeId = -99, int brandId = -99}) async {
+      {String productName = '',
+        int typeId = DBHelper.PARAM_NOT_SET,
+        int brandId = DBHelper.PARAM_NOT_SET,
+        int unitId = DBHelper.PARAM_NOT_SET
+      }) async {
     try {
       final Database dbClient = await db;
       String queryGet = "select ${ProductTable.NAME}.*, ${TypeTable.NAME}.*, ${SizeTable.NAME}.*, ${BrandTable.NAME}.*" +
@@ -250,11 +390,14 @@ class DBHelper {
           "AND ${TypeTable.NAME}.${TypeTable.COLUMN_STATUS} = 1 " +
           "AND ${ProductTable.NAME}.${ProductTable.COLUMN_NAME} LIKE  '%" + productName  + "%'";
 
-      if(typeId != -99){
+      if(typeId != DBHelper.PARAM_NOT_SET){
         queryGet = queryGet +  "AND ${TypeTable.NAME}.${TypeTable.COLUMN_ID} = $typeId ";
       }
-      if(brandId != -99){
+      if(brandId != DBHelper.PARAM_NOT_SET){
         queryGet = queryGet +  "AND ${BrandTable.NAME}.${BrandTable.COLUMN_ID} = $brandId ";
+      }
+      if(unitId != DBHelper.PARAM_NOT_SET){
+        queryGet = queryGet +  "AND ${UnitTable.NAME}.${UnitTable.COLUMN_ID} = $unitId ";
       }
 
       final List<Map<String, dynamic>> queryResult =
@@ -457,33 +600,11 @@ class DBHelper {
       return ResponseDatabase(
           result: ResponseDatabase.SUCCESS,
           message: 'Delete type dengan id "${id}" sukses');
-    } on DatabaseException catch (e) {
+    } on DatabaseException catch (_) {
       return ResponseDatabase(
           result: ResponseDatabase.ERROR_SHOULD_RETRY,
           message: 'Delete type dengan id "${id}" gagal');
     }
-  }
-
-  Future<Null> insertOrUpdateUnit(ProductUnit unit) async {
-    final Database dbClient = await db;
-    final Map<String, dynamic> dataToBeInserted = {
-      UnitTable.COLUMN_NAME: unit.name,
-      UnitTable.COLUMN_STATUS: unit.status,
-    };
-    if (unit.id != ID_FOR_INSERT) {
-      dataToBeInserted.addAll({UnitTable.COLUMN_ID: unit.id});
-    }
-    dbClient.insert(UnitTable.NAME, dataToBeInserted,
-        conflictAlgorithm: ConflictAlgorithm.replace);
-  }
-
-  Future<Null> deleteUnit(int id) async {
-    final Database dbClient = await db;
-    final Map<String, dynamic> valueToBeUpdated = {
-      UnitTable.COLUMN_STATUS: 0,
-    };
-    dbClient.update(UnitTable.NAME, valueToBeUpdated,
-        where: UnitTable.COLUMN_ID + ' = ?', whereArgs: [id]);
   }
 
   Future<ResponseDatabase<Product>> insertOrUpdateProduct(

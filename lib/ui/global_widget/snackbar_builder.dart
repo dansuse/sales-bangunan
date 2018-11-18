@@ -1,5 +1,5 @@
-import 'package:salbang/resources/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:salbang/resources/colors.dart';
 
 class SnackbarBuilder {
   static Widget getSnackbar(String content, String actionLabel,

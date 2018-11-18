@@ -5,22 +5,22 @@ import 'package:salbang/bloc/brand_bloc.dart';
 import 'package:salbang/bloc/cupertino_picker_bloc.dart';
 import 'package:salbang/bloc/my_homepage_bloc.dart';
 import 'package:salbang/bloc/product_bloc.dart';
-import 'package:salbang/bloc/size_bloc.dart';
 import 'package:salbang/bloc/type_bloc.dart';
+import 'package:salbang/bloc/unit_bloc.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/drawer_items.dart';
 import 'package:salbang/drawer_list_data.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
-import 'package:salbang/ui/base_ui/master_template.dart';
 import 'package:salbang/ui/global_widget/flutter_search_bar_base.dart';
 import 'package:salbang/ui/product/product_catalog.dart';
 import 'package:salbang/ui/product/product_master.dart';
 import 'package:salbang/ui/product_brand/product_brand_catalog.dart';
 import 'package:salbang/ui/product_brand/product_brand_master.dart';
-import 'package:salbang/ui/product_size/product_size_master.dart';
 import 'package:salbang/ui/product_type/product_type_catalog.dart';
 import 'package:salbang/ui/product_type/product_type_master.dart';
+import 'package:salbang/ui/product_unit/product_unit_catalog.dart';
+import 'package:salbang/ui/product_unit/product_unit_master.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -30,7 +30,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> _key = new GlobalKey<ScaffoldState>();
   MyHomePageBloc _myHomePageBloc;
-  TypeBloc _typeBloc;
   DrawerListItemData _drawerListItemData;
   List<DrawerItems> _drawerItemsData;
   int index = 0 ;
@@ -92,22 +91,27 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _getDrawerItemWidget(int pos) {
     switch (pos) {
-      case 0:
+      case DrawerListItemData.CATALOG_PRODUCT:
         return new BlocProvider<ProductBloc>(
           bloc: ProductBloc(DBHelper()),
           child: ProductCatalog(),
         );
-      case 1:
+      case DrawerListItemData.CATALOG_BRAND:
         return new BlocProvider<BrandBloc>(
           bloc: BrandBloc(DBHelper()),
           child: ProductBrandCatalog(),
         );
-      case 2:
+      case DrawerListItemData.CATALOG_TYPE:
         return new BlocProvider<TypeBloc>(
           bloc: TypeBloc(DBHelper()),
           child: ProductTypeCatalog(),
         );
-      case 3:
+      case DrawerListItemData.CATALOG_UNIT:
+        return new BlocProvider<UnitBloc>(
+          bloc: UnitBloc(DBHelper()),
+          child: ProductUnitCatalog(),
+        );
+      case DrawerListItemData.MASTER_PRODUCT:
         return new BlocProvider<ProductBloc>(
           bloc: ProductBloc(DBHelper()),
           child: new BlocProvider<CupertinoPickerBloc>(
@@ -115,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: new ProductMaster(),
           ),
         );
-      case 4:
+      case DrawerListItemData.MASTER_BRAND:
         return new BlocProvider<BrandBloc>(
           bloc: BrandBloc(DBHelper()),
           child: new BlocProvider<ProductBloc>(
@@ -123,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: new ProductBrandMaster(),
           ),
         );
-      case 5:
+      case DrawerListItemData.MASTER_TYPE:
         return new BlocProvider<TypeBloc>(
           bloc: TypeBloc(DBHelper()),
           child: new BlocProvider<ProductBloc>(
@@ -131,12 +135,12 @@ class _MyHomePageState extends State<MyHomePage> {
             child: new ProductTypeMaster(),
           ),
         );
-      case 6:
-        return new BlocProvider<SizeBloc>(
-          bloc: SizeBloc(DBHelper()),
+      case DrawerListItemData.MASTER_UNIT:
+        return new BlocProvider<UnitBloc>(
+          bloc: UnitBloc(DBHelper()),
           child: new BlocProvider<ProductBloc>(
             bloc: ProductBloc(DBHelper()),
-            child: new ProductSizeMaster(),
+            child: new ProductUnitMaster(),
           ),
         );
       default:
@@ -148,7 +152,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     print('- build homepage');
     _myHomePageBloc = BlocProvider.of<MyHomePageBloc>(context);
-    _typeBloc = BlocProvider.of<TypeBloc>(context);
     final List<Widget> drawerOptions = <Widget>[];
     for (int i = 0; i < _drawerItemsData.length; i++) {
       final DrawerItems root = _drawerItemsData[i];

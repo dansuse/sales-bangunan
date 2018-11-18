@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 class MyCamera extends StatefulWidget {
   @override
   _MyCameraState createState() => new _MyCameraState();

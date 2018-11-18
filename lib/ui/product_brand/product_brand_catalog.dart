@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/brand_bloc.dart';
 import 'package:salbang/bloc/product_bloc.dart';
-import 'package:salbang/bloc/type_bloc.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/model/brand.dart';
-import 'package:salbang/model/product_type.dart';
 import 'package:salbang/model/response_database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
@@ -12,10 +10,6 @@ import 'package:salbang/resources/navigation_util.dart';
 import 'package:salbang/ui/global_widget/flutter_search_bar_base.dart';
 import 'package:salbang/ui/global_widget/progress_indicator_builder.dart';
 import 'package:salbang/ui/product/product_catalog.dart';
-
-import 'package:salbang/ui/product/product_catalog_detail.dart';
-import 'package:salbang/ui/product/product_catalog_list_items.dart';
-import 'package:salbang/model/product.dart';
 
 class ProductBrandCatalog extends StatefulWidget {
   @override
