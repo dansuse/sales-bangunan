@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:salbang/model/product_image.dart';
 
 class ProductCatalogDetailPicture extends StatefulWidget {
   int _controllerPage;
-  ProductCatalogDetailPicture(this._controllerPage);
+  List<Widget> productImages;
+  ProductCatalogDetailPicture(this._controllerPage,{this.productImages});
   @override
   ProductCatalogDetailPictureState createState() => new ProductCatalogDetailPictureState();
 }
@@ -16,9 +18,11 @@ class ProductCatalogDetailPictureState extends State<ProductCatalogDetailPicture
     super.initState();
     _controller = new PageController(initialPage: widget._controllerPage);
   }
-
-
-
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -36,22 +40,8 @@ class ProductCatalogDetailPictureState extends State<ProductCatalogDetailPicture
                 alignment: FractionalOffset.bottomCenter,
                 children: <Widget>[
                   new PageView(
-                    children: <Widget>[
-                      new PhotoView(
-                        imageProvider: NetworkImage("http://via.placeholder.com/350x150"),
-                        minScale: PhotoViewComputedScale.contained * 0.8,
-                        maxScale: 4.0,
-                        heroTag: "1",
-                        loadingChild: new SizedBox(),
-                      ),
-                      new PhotoView(
-                        imageProvider: NetworkImage("http://via.placeholder.com/350x150"),
-                        minScale: PhotoViewComputedScale.contained * 0.8,
-                        maxScale: 4.0,
-                        heroTag: "2",
-                        loadingChild: new SizedBox(),
-                      ),
-                    ],
+                    children: widget.productImages,
+                    controller: _controller,
                   ),
                 ],
               ),

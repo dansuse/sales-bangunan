@@ -7,6 +7,7 @@ class ResponseDatabase<T>{
   T data;
   int result;
   String message;
+
   ResponseDatabase({this.data, this.result, this.message});
 
   ResponseDatabase.fromAnotherResponse(ResponseDatabase anotherResponse){

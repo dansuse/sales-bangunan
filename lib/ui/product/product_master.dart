@@ -17,9 +17,7 @@ class ProductMaster extends StatefulWidget {
 
 class _ProductMasterState extends State<ProductMaster> {
   ProductBloc productBloc;
-  List<File> _image;
-
-
+//  List<File> _image;
 
   @override
   Widget build(BuildContext context) {

@@ -388,53 +388,67 @@ class DBHelper {
           "AND ${BrandTable.NAME}.${BrandTable.COLUMN_STATUS} = 1 " +
           "AND ${SizeTable.NAME}.${SizeTable.COLUMN_STATUS} = 1 " +
           "AND ${TypeTable.NAME}.${TypeTable.COLUMN_STATUS} = 1 " +
-          "AND ${ProductTable.NAME}.${ProductTable.COLUMN_NAME} LIKE  '%" + productName  + "%'";
+          "AND ${ProductTable.NAME}.${ProductTable.COLUMN_NAME} LIKE  '%" +
+          productName +
+          "%'";
+
 
       if(typeId != DBHelper.PARAM_NOT_SET){
         queryGet = queryGet +  "AND ${TypeTable.NAME}.${TypeTable.COLUMN_ID} = $typeId ";
       }
-      if(brandId != DBHelper.PARAM_NOT_SET){
-        queryGet = queryGet +  "AND ${BrandTable.NAME}.${BrandTable.COLUMN_ID} = $brandId ";
-      }
-      if(unitId != DBHelper.PARAM_NOT_SET){
-        queryGet = queryGet +  "AND ${UnitTable.NAME}.${UnitTable.COLUMN_ID} = $unitId ";
-      }
+      if(brandId != DBHelper.PARAM_NOT_SET) {
+        queryGet = queryGet +
+            "AND ${BrandTable.NAME}.${BrandTable.COLUMN_ID} = $brandId ";
 
-      final List<Map<String, dynamic>> queryResult =
-          await dbClient.rawQuery(queryGet);
+        if (typeId != -99) {
+          queryGet = queryGet +
+              "AND ${TypeTable.NAME}.${TypeTable.COLUMN_ID} = $typeId ";
+        }
+        if (brandId != -99) {
+          queryGet = queryGet +
+              "AND ${BrandTable.NAME}.${BrandTable.COLUMN_ID} = $brandId ";
+        }
+        if (unitId != DBHelper.PARAM_NOT_SET) {
+          queryGet = queryGet +
+              "AND ${UnitTable.NAME}.${UnitTable.COLUMN_ID} = $unitId ";
+        }
 
-      if (queryResult.isEmpty) {
-        return ResponseDatabase<List<Product>>(
-            result: ResponseDatabase.SUCCESS_EMPTY);
-      } else {
-        final List<Product> products = queryResult.map((item) {
-          return Product(
-            item[ProductTable.COLUMN_ID],
-            item[ProductTable.COLUMN_NAME],
-            item[ProductTable.COLUMN_PRICE],
-            item[ProductTable.COLUMN_STOCK],
-            item[ProductTable.COLUMN_DESCRIPTION],
-            item[ProductTable.COLUMN_STATUS],
-            item[ProductTable.COLUMN_SIZE],
-            item[ProductTable.COLUMN_FK_BRAND],
-            item[ProductTable.COLUMN_FK_TYPE],
-            item[ProductTable.COLUMN_FK_UNIT],
-            item[ProductTable.COLUMN_FK_SIZE],
-            new Brand(item[BrandTable.COLUMN_NAME],
-                item[BrandTable.COLUMN_DESCRIPTION],
-                id: item[BrandTable.COLUMN_ID],
-                status: item[BrandTable.COLUMN_STATUS]),
-            new ProductType(
-                id: item[TypeTable.COLUMN_ID],
-                name: item[TypeTable.COLUMN_NAME],
-                status: item[TypeTable.COLUMN_STATUS]),
-            new ProductSize(item[SizeTable.COLUMN_NAME],
-                id: item[SizeTable.COLUMN_ID],
-                status: item[SizeTable.COLUMN_STATUS]),
-          );
-        }).toList();
-        return ResponseDatabase<List<Product>>(
-            data: products, result: ResponseDatabase.SUCCESS);
+        final List<Map<String, dynamic>> queryResult =
+        await dbClient.rawQuery(queryGet);
+
+        if (queryResult.isEmpty) {
+          return ResponseDatabase<List<Product>>(
+              result: ResponseDatabase.SUCCESS_EMPTY);
+        } else {
+          final List<Product> products = queryResult.map((item) {
+            return Product(
+              item[ProductTable.COLUMN_ID],
+              item[ProductTable.COLUMN_NAME],
+              item[ProductTable.COLUMN_PRICE],
+              item[ProductTable.COLUMN_STOCK],
+              item[ProductTable.COLUMN_DESCRIPTION],
+              item[ProductTable.COLUMN_STATUS],
+              item[ProductTable.COLUMN_SIZE],
+              item[ProductTable.COLUMN_FK_BRAND],
+              item[ProductTable.COLUMN_FK_TYPE],
+              item[ProductTable.COLUMN_FK_UNIT],
+              item[ProductTable.COLUMN_FK_SIZE],
+              new Brand(item[BrandTable.COLUMN_NAME],
+                  item[BrandTable.COLUMN_DESCRIPTION],
+                  id: item[BrandTable.COLUMN_ID],
+                  status: item[BrandTable.COLUMN_STATUS]),
+              new ProductType(
+                  id: item[TypeTable.COLUMN_ID],
+                  name: item[TypeTable.COLUMN_NAME],
+                  status: item[TypeTable.COLUMN_STATUS]),
+              new ProductSize(item[SizeTable.COLUMN_NAME],
+                  id: item[SizeTable.COLUMN_ID],
+                  status: item[SizeTable.COLUMN_STATUS]),
+            );
+          }).toList();
+          return ResponseDatabase<List<Product>>(
+              data: products, result: ResponseDatabase.SUCCESS);
+        }
       }
     } on DatabaseException catch (_) {
       return ResponseDatabase<List<Product>>(
@@ -692,19 +706,80 @@ class DBHelper {
     }
   }
 
-  Future<Null> addProductImages(List<ProductImage> images) async {
+  Future<ResponseDatabase<int>> addProductImages(
+      List<ProductImage> images) async {
     final Database dbClient = await db;
-    for (ProductImage image in images) {
-      final Map<String, dynamic> dataToBeInserted = {
-        ProductImageTable.COLUMN_URL: image.url,
-        ProductImageTable.COLUMN_STATUS: image.status,
-        ProductImageTable.COLUMN_FK_PRODUCT: image.productId,
-      };
-      if (image.id != ID_FOR_INSERT) {
-        dataToBeInserted.addAll({ProductImageTable.COLUMN_ID: image.id});
+    try {
+
+      for (ProductImage image in images) {
+        print(image.url + "===" + image.productId.toString());
+        final Map<String, dynamic> dataToBeInserted = {
+          ProductImageTable.COLUMN_URL: image.url,
+          ProductImageTable.COLUMN_STATUS: image.status,
+          ProductImageTable.COLUMN_FK_PRODUCT: image.productId,
+        };
+        if (image.id != ID_FOR_INSERT) {
+          dataToBeInserted.addAll({ProductImageTable.COLUMN_ID: image.id});
+        }
+        dbClient.insert(ProductImageTable.NAME, dataToBeInserted,
+            conflictAlgorithm: ConflictAlgorithm.replace).then((onValue){
+              print("insert semua gambar -> " + onValue.toString());
+        });
+        print("a");
       }
-      dbClient.insert(ProductImageTable.NAME, dataToBeInserted,
-          conflictAlgorithm: ConflictAlgorithm.replace);
+      print("b");
+      return ResponseDatabase<int>(
+        result: ResponseDatabase.SUCCESS,
+        message: 'Sukses memasukkan gambar ke dalam database',
+      );
+    } catch (e) {
+      print("C");
+      return ResponseDatabase<int>(
+          result: ResponseDatabase.ERROR_SHOULD_RETRY,
+          message: 'Terjadi error saat memasukkan gambar ke dalam database');
+    }
+  }
+
+  Future<ResponseDatabase<List<ProductImage>>> getProductImagesByProductId(
+      int productId) async {
+    try {
+      final Database dbClient = await db;
+      final List<Map<String, dynamic>> response = await dbClient.query(
+        ProductImageTable.NAME,
+        columns: [
+          ProductImageTable.COLUMN_ID,
+          ProductImageTable.COLUMN_URL,
+          ProductImageTable.COLUMN_STATUS,
+        ],
+        where: ProductImageTable.COLUMN_FK_PRODUCT + ' = ?',
+        whereArgs: [productId],
+      );
+      if (response.isEmpty) {
+        print("x");
+        return ResponseDatabase<List<ProductImage>>(
+            result: ResponseDatabase.SUCCESS_EMPTY);
+      } else {
+        print("y");
+        final List<ProductImage> _dataProductImages =
+            response.map((Map<String, dynamic> item) {
+          return new ProductImage(
+            id: item[ProductImageTable.COLUMN_ID],
+            url: item[ProductImageTable.COLUMN_URL],
+            status: item[ProductImageTable.COLUMN_STATUS],
+          );
+        }).toList();
+        print("z");
+        return ResponseDatabase<List<ProductImage>>(
+          result: ResponseDatabase.SUCCESS,
+          data: _dataProductImages,
+        );
+      }
+    } on DatabaseException catch (e) {
+      print("Q");
+      return ResponseDatabase<List<ProductImage>>(
+        result: ResponseDatabase.ERROR_SHOULD_RETRY,
+        message: e.toString(),
+      );
     }
   }
 
@@ -719,12 +794,66 @@ class DBHelper {
     }
   }
 
-  Future<Null> deleteProductImagesByProductId(int productId) async {
+  Future<ResponseDatabase<int>> deleteProductImagesByProductId(
+      int productImageId) async {
+    try {
+      final Database dbClient = await db;
+      int _successDelete = -98;
+      dbClient.delete(
+        ProductImageTable.NAME,
+        where: ProductImageTable.COLUMN_ID + ' = ?',
+        whereArgs: [productImageId],
+      ).then((onValue) {
+        _successDelete = onValue.toInt();
+        print(_successDelete.toString() + "<-- success delete, onvalue --->" + onValue.toString());
+        return ResponseDatabase(
+            result: ResponseDatabase.SUCCESS,
+            data:  onValue.toInt(),
+            message: "Sukses Delete Foto");
+      });
+      return ResponseDatabase(
+          result: ResponseDatabase.SUCCESS,
+          data: _successDelete,
+          message: "Sukses Delete Foto");
+    } on DatabaseException catch (e) {
+      return ResponseDatabase(
+          result: ResponseDatabase.ERROR_SHOULD_RETRY,
+          data: -99,
+          message: e.toString());
+    }
+  }
+
+  Future<ResponseDatabase<int>> addProductImage(
+      ProductImage image) async {
     final Database dbClient = await db;
-    dbClient.delete(
-      ProductImageTable.NAME,
-      where: ProductImageTable.COLUMN_FK_PRODUCT + ' = ?',
-      whereArgs: [productId],
-    );
+    try {
+        int productImageId;
+        print(image.url + "===" + image.productId.toString());
+        final Map<String, dynamic> dataToBeInserted = {
+          ProductImageTable.COLUMN_URL: image.url,
+          ProductImageTable.COLUMN_STATUS: image.status,
+          ProductImageTable.COLUMN_FK_PRODUCT: image.productId,
+        };
+        if (image.id != ID_FOR_INSERT) {
+          dataToBeInserted.addAll({ProductImageTable.COLUMN_ID: image.id});
+        }
+        dbClient.insert(ProductImageTable.NAME, dataToBeInserted,
+            conflictAlgorithm: ConflictAlgorithm.replace).then((onValue){
+          image.id = onValue;
+          productImageId = onValue;
+              print("insert gambar baru ->" +  onValue.toString());
+        });
+
+      return ResponseDatabase<int>(
+        result: ResponseDatabase.SUCCESS,
+        data: image.id,
+        message: 'Sukses menambah gambar ke dalam database',
+      );
+    } catch (e) {
+      print("C");
+      return ResponseDatabase<int>(
+          result: ResponseDatabase.ERROR_SHOULD_RETRY,
+          message: 'Terjadi error saat memasukkan gambar ke dalam database');
+    }
   }
 }
