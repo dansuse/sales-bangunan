@@ -37,16 +37,16 @@ class ProductBloc extends BlocBase{
     return await dbHelper.getProductsBy(id, ProductTable.COLUMN_FK_BRAND);
   }
 
-  Future<List<Product>> getProductBySize(int id)async{
-    return await dbHelper.getProductsBy(id, ProductTable.COLUMN_FK_SIZE);
-  }
+//  Future<List<Product>> getProductBySize(int id)async{
+//    return await dbHelper.getProductsBy(id, ProductTable.COLUMN_FK_SIZE);
+//  }
 
   Future<List<Product>> getProductByType(int id)async{
     return await dbHelper.getProductsBy(id, ProductTable.COLUMN_FK_TYPE);
   }
 
   Future<List<Product>> getProductByUnit(int id)async{
-    return await dbHelper.getProductsBy(id, ProductTable.COLUMN_FK_UNIT);
+    return Future.value(<Product>[]);
   }
 
   Future<List<Product>> getProductBy(int id, String foreignKeyColumnName)async{
@@ -76,20 +76,17 @@ class ProductBloc extends BlocBase{
 
   Future<void> insertOrUpdateProduct(int id, String name, double price,
       int stock, String description, int size,
-      int fkBrand, int fkSize, int fkType)async{
+      int fkBrand, int fkUnit, int fkType)async{
     _outputButtonState.add(ButtonState.LOADING);
-    print(fkBrand.toString() + ":" + fkSize.toString() + ":" + fkType.toString());
+    print("Brand:" + fkBrand.toString() + "||Unit:" + fkUnit.toString() + "||Type:" + fkType.toString());
     final Product product = Product(
       id,
       name,
-      price, stock,
+      stock,
       description,
       productStatus ? 1 : 0,
-      size,
       fkBrand,
       fkType,
-      0,
-      fkSize
     );
     final ResponseDatabase<Product> response = await dbHelper.insertOrUpdateProduct(product);
     _outputOperationResult.add(response);
