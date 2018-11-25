@@ -104,7 +104,7 @@ class _ProductUnitListItemState extends State<ProductUnitListItem> {
           ),
           Text(StringConstant.RELATED_PRODUCT),
           new FutureBuilder<List<Product>>(
-            future: BlocProvider.of<ProductBloc>(context).getProductBySize(widget.productUnit.id),
+            future: BlocProvider.of<ProductBloc>(context).getProductByUnit(widget.productUnit.id),
             builder: (context, snapshot){
               if(snapshot.hasData){
                 if(snapshot.data.isNotEmpty){

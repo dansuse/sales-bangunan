@@ -27,7 +27,7 @@ class ProductListItems extends StatelessWidget {
               child: buildProductDescriptionWidget(context, 'Merk', product.productBrand.name),
             ),
             new Expanded(
-              child: buildProductDescriptionWidget(context, 'Harga', CurrencyUtil.parseDoubleToIDR(product.price)),
+              child: buildProductDescriptionWidget(context, 'Harga', CurrencyUtil.parseDoubleToIDR(123456.0)),
             ),
           ],
         ),

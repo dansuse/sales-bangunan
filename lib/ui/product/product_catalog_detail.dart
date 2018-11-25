@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/image_bloc.dart';
@@ -134,17 +133,17 @@ class _ProductCatalogDetailState extends State<ProductCatalogDetail> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 buildProductDescriptionWidget('Nama', widget.product.name),
-                buildProductDescriptionWidget(
-                    'Ukuran',
-                    widget.product.size.toString() +
-                        " " +
-                        widget.product.productSize.name),
+//                buildProductDescriptionWidget(
+//                    'Ukuran',
+//                    widget.product.size.toString() +
+//                        " " +
+//                        widget.product.productSize.name),
                 buildProductDescriptionWidget(
                     'Tipe', widget.product.productType.name),
                 buildProductDescriptionWidget(
                     'Merk', widget.product.productBrand.name),
-                buildProductDescriptionWidget(
-                    'Harga', widget.product.price.toString()),
+//                buildProductDescriptionWidget(
+//                    'Harga', widget.product.price.toString()),
                 buildProductDescriptionWidget(
                     'Deskripsi', widget.product.description),
                 const SizedBox(

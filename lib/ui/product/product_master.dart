@@ -7,6 +7,7 @@ import 'package:salbang/model/response_database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/navigation_util.dart';
+import 'package:salbang/resources/string_constant.dart';
 import 'package:salbang/ui/global_widget/progress_indicator_builder.dart';
 import 'package:salbang/ui/product/product_master_list.dart';
 import 'package:salbang/ui/product/product_settings.dart';
@@ -90,7 +91,7 @@ class _ProductMasterState extends State<ProductMaster> {
           ],
         ),
         const SliverFillRemaining(
-          child: Center(child: Text("No Data Available"),),
+          child: Center(child: Text(StringConstant.NO_DATA_AVAILABLE),),
         )
       ],
     );

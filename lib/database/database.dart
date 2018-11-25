@@ -380,82 +380,80 @@ class DBHelper {
       }) async {
     try {
       final Database dbClient = await db;
-      String queryGet = "select ${ProductTable.NAME}.*, ${TypeTable.NAME}.*, ${SizeTable.NAME}.*, ${BrandTable.NAME}.*" +
-          " from ${ProductTable.NAME}, ${TypeTable.NAME}, ${SizeTable.NAME}, ${BrandTable.NAME} " +
-          "where ${ProductTable.NAME}.${ProductTable.COLUMN_FK_BRAND} = ${BrandTable.NAME}.${BrandTable.COLUMN_ID} " +
-          "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_SIZE} = ${SizeTable.NAME}.${SizeTable.COLUMN_ID} " +
-          "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_TYPE} = ${TypeTable.NAME}.${TypeTable.COLUMN_ID} " +
+      String queryGet = "select ${ProductTable.NAME}.*, ${TypeTable
+          .NAME}.*, ${SizeTable.NAME}.*, ${BrandTable.NAME}.*" +
+          " from ${ProductTable.NAME}, ${TypeTable.NAME}, ${SizeTable
+              .NAME}, ${BrandTable.NAME} " +
+          "where ${ProductTable.NAME}.${ProductTable
+              .COLUMN_FK_BRAND} = ${BrandTable.NAME}.${BrandTable.COLUMN_ID} " +
+//          "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_UNIT} = ${UnitTable
+//              .NAME}.${UnitTable.COLUMN_ID} " +
+          "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_TYPE} = ${TypeTable
+              .NAME}.${TypeTable.COLUMN_ID} " +
           "AND ${BrandTable.NAME}.${BrandTable.COLUMN_STATUS} = 1 " +
-          "AND ${SizeTable.NAME}.${SizeTable.COLUMN_STATUS} = 1 " +
+          "AND ${UnitTable.NAME}.${UnitTable.COLUMN_STATUS} = 1 " +
           "AND ${TypeTable.NAME}.${TypeTable.COLUMN_STATUS} = 1 " +
           "AND ${ProductTable.NAME}.${ProductTable.COLUMN_NAME} LIKE  '%" +
           productName +
           "%'";
 
 
-      if(typeId != DBHelper.PARAM_NOT_SET){
-        queryGet = queryGet +  "AND ${TypeTable.NAME}.${TypeTable.COLUMN_ID} = $typeId ";
+      if (typeId != DBHelper.PARAM_NOT_SET) {
+        queryGet = queryGet +
+            "AND ${TypeTable.NAME}.${TypeTable.COLUMN_ID} = $typeId ";
       }
-      if(brandId != DBHelper.PARAM_NOT_SET) {
+      if (brandId != DBHelper.PARAM_NOT_SET) {
         queryGet = queryGet +
             "AND ${BrandTable.NAME}.${BrandTable.COLUMN_ID} = $brandId ";
-
-        if (typeId != -99) {
-          queryGet = queryGet +
-              "AND ${TypeTable.NAME}.${TypeTable.COLUMN_ID} = $typeId ";
-        }
-        if (brandId != -99) {
-          queryGet = queryGet +
-              "AND ${BrandTable.NAME}.${BrandTable.COLUMN_ID} = $brandId ";
-        }
-        if (unitId != DBHelper.PARAM_NOT_SET) {
-          queryGet = queryGet +
-              "AND ${UnitTable.NAME}.${UnitTable.COLUMN_ID} = $unitId ";
-        }
-
-        final List<Map<String, dynamic>> queryResult =
-        await dbClient.rawQuery(queryGet);
-
-        if (queryResult.isEmpty) {
-          return ResponseDatabase<List<Product>>(
-              result: ResponseDatabase.SUCCESS_EMPTY);
-        } else {
-          final List<Product> products = queryResult.map((item) {
-            return Product(
-              item[ProductTable.COLUMN_ID],
-              item[ProductTable.COLUMN_NAME],
-              item[ProductTable.COLUMN_PRICE],
-              item[ProductTable.COLUMN_STOCK],
-              item[ProductTable.COLUMN_DESCRIPTION],
-              item[ProductTable.COLUMN_STATUS],
-              item[ProductTable.COLUMN_SIZE],
-              item[ProductTable.COLUMN_FK_BRAND],
-              item[ProductTable.COLUMN_FK_TYPE],
-              item[ProductTable.COLUMN_FK_UNIT],
-              item[ProductTable.COLUMN_FK_SIZE],
-              new Brand(item[BrandTable.COLUMN_NAME],
-                  item[BrandTable.COLUMN_DESCRIPTION],
-                  id: item[BrandTable.COLUMN_ID],
-                  status: item[BrandTable.COLUMN_STATUS]),
-              new ProductType(
-                  id: item[TypeTable.COLUMN_ID],
-                  name: item[TypeTable.COLUMN_NAME],
-                  status: item[TypeTable.COLUMN_STATUS]),
-              new ProductSize(item[SizeTable.COLUMN_NAME],
-                  id: item[SizeTable.COLUMN_ID],
-                  status: item[SizeTable.COLUMN_STATUS]),
-            );
-          }).toList();
-          return ResponseDatabase<List<Product>>(
-              data: products, result: ResponseDatabase.SUCCESS);
-        }
       }
-    } on DatabaseException catch (_) {
+
+      if (unitId != DBHelper.PARAM_NOT_SET) {
+        queryGet = queryGet +
+            "AND ${UnitTable.NAME}.${UnitTable.COLUMN_ID} = $unitId ";
+      }
+
+      final List<Map<String, dynamic>> queryResult =
+      await dbClient.rawQuery(queryGet);
+
+      if (queryResult.isEmpty) {
+        return ResponseDatabase<List<Product>>(
+            result: ResponseDatabase.SUCCESS_EMPTY);
+      } else {
+        final List<Product> products = queryResult.map((item) {
+          return Product(
+            item[ProductTable.COLUMN_ID],
+            item[ProductTable.COLUMN_NAME],
+            item[ProductTable.COLUMN_STOCK],
+            item[ProductTable.COLUMN_DESCRIPTION],
+            item[ProductTable.COLUMN_STATUS],
+            item[ProductTable.COLUMN_FK_BRAND],
+            item[ProductTable.COLUMN_FK_TYPE],
+            productBrand: new Brand(item[BrandTable.COLUMN_NAME],
+                item[BrandTable.COLUMN_DESCRIPTION],
+                id: item[BrandTable.COLUMN_ID],
+                status: item[BrandTable.COLUMN_STATUS]),
+            productType: new ProductType(
+                id: item[TypeTable.COLUMN_ID],
+                name: item[TypeTable.COLUMN_NAME],
+                status: item[TypeTable.COLUMN_STATUS]),
+//            productUnit: new ProductUnit(item[UnitTable.COLUMN_NAME],
+//                item[UnitTable.COLUMN_DESCRIPTION],
+//                id: item[UnitTable.COLUMN_ID],
+//                status: item[UnitTable.COLUMN_STATUS]),
+          );
+        }).toList();
+        return ResponseDatabase<List<Product>>(
+            data: products, result: ResponseDatabase.SUCCESS);
+      }
+
+    }
+    on DatabaseException catch (_) {
       return ResponseDatabase<List<Product>>(
-          result: ResponseDatabase.ERROR_SHOULD_RETRY,
-          message: 'Terjadi error saat mengambil data produk untuk catalog');
+        result: ResponseDatabase.ERROR_SHOULD_RETRY,
+        message: 'Terjadi error saat mengambil data produk untuk catalog');
     }
   }
+
 
   Future<ResponseDatabase<List<Product>>> getProductsForMaster() async {
     try {
@@ -472,10 +470,12 @@ class DBHelper {
           "select ${ProductTable.NAME}.*, ${TypeTable.NAME}.*, ${SizeTable.NAME}.*, ${BrandTable.NAME}.*" +
               " from ${ProductTable.NAME}, ${TypeTable.NAME}, ${SizeTable.NAME}, ${BrandTable.NAME} " +
               "where ${ProductTable.NAME}.${ProductTable.COLUMN_FK_BRAND} = ${BrandTable.NAME}.${BrandTable.COLUMN_ID} " +
-              "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_SIZE} = ${SizeTable.NAME}.${SizeTable.COLUMN_ID} " +
+//              "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_SIZE} = ${SizeTable.NAME}.${SizeTable.COLUMN_ID} " +
+//              "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_UNIT} = ${UnitTable.NAME}.${UnitTable.COLUMN_ID} " +
               "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_TYPE} = ${TypeTable.NAME}.${TypeTable.COLUMN_ID} " +
               "AND ${BrandTable.NAME}.${BrandTable.COLUMN_STATUS} = 1 " +
-              "AND ${SizeTable.NAME}.${SizeTable.COLUMN_STATUS} = 1 " +
+//              "AND ${SizeTable.NAME}.${SizeTable.COLUMN_STATUS} = 1 " +
+              "AND ${UnitTable.NAME}.${UnitTable.COLUMN_STATUS} = 1 " +
               "AND ${TypeTable.NAME}.${TypeTable.COLUMN_STATUS} = 1 " +
               "AND ${ProductTable.NAME}.${ProductTable.COLUMN_STATUS} = 1 ");
 
@@ -487,26 +487,29 @@ class DBHelper {
           return Product(
             item[ProductTable.COLUMN_ID],
             item[ProductTable.COLUMN_NAME],
-            item[ProductTable.COLUMN_PRICE],
+//            item[ProductTable.COLUMN_PRICE],
             item[ProductTable.COLUMN_STOCK],
             item[ProductTable.COLUMN_DESCRIPTION],
             item[ProductTable.COLUMN_STATUS],
-            item[ProductTable.COLUMN_SIZE],
+//            item[ProductTable.COLUMN_SIZE],
             item[ProductTable.COLUMN_FK_BRAND],
             item[ProductTable.COLUMN_FK_TYPE],
-            item[ProductTable.COLUMN_FK_UNIT],
-            item[ProductTable.COLUMN_FK_SIZE],
-            new Brand(item[BrandTable.COLUMN_NAME],
+//            item[ProductTable.COLUMN_FK_SIZE],
+            productBrand:new Brand(item[BrandTable.COLUMN_NAME],
                 item[BrandTable.COLUMN_DESCRIPTION],
                 id: item[BrandTable.COLUMN_ID],
                 status: item[BrandTable.COLUMN_STATUS]),
-            new ProductType(
+            productType:new ProductType(
                 id: item[TypeTable.COLUMN_ID],
                 name: item[TypeTable.COLUMN_NAME],
                 status: item[TypeTable.COLUMN_STATUS]),
-            new ProductSize(item[SizeTable.COLUMN_NAME],
-                id: item[SizeTable.COLUMN_ID],
-                status: item[SizeTable.COLUMN_STATUS]),
+//            productSize:new ProductSize(item[SizeTable.COLUMN_NAME],
+//                id: item[SizeTable.COLUMN_ID],
+//                status: item[SizeTable.COLUMN_STATUS]),
+//            productUnit:new ProductUnit(item[UnitTable.COLUMN_NAME],
+//                item[UnitTable.COLUMN_DESCRIPTION],
+//                id: item[UnitTable.COLUMN_ID],
+//                status: item[UnitTable.COLUMN_STATUS]),
           );
         }).toList();
         return ResponseDatabase<List<Product>>(
@@ -557,15 +560,11 @@ class DBHelper {
       return Product(
         item[ProductTable.COLUMN_ID],
         item[ProductTable.COLUMN_NAME],
-        item[ProductTable.COLUMN_PRICE],
         item[ProductTable.COLUMN_STOCK],
         item[ProductTable.COLUMN_DESCRIPTION],
         item[ProductTable.COLUMN_STATUS],
-        item[ProductTable.COLUMN_SIZE],
         item[ProductTable.COLUMN_FK_BRAND],
         item[ProductTable.COLUMN_FK_TYPE],
-        item[ProductTable.COLUMN_FK_UNIT],
-        item[ProductTable.COLUMN_FK_SIZE],
       );
     }).toList();
   }
@@ -628,15 +627,12 @@ class DBHelper {
       final Database dbClient = await db;
       final Map<String, dynamic> dataToBeInserted = {
         ProductTable.COLUMN_NAME: product.name,
-        ProductTable.COLUMN_PRICE: product.price,
         ProductTable.COLUMN_STOCK: product.stock,
         ProductTable.COLUMN_DESCRIPTION: product.description,
         ProductTable.COLUMN_STATUS: product.status,
-        ProductTable.COLUMN_SIZE: product.size,
         ProductTable.COLUMN_FK_BRAND: product.brandId,
-        ProductTable.COLUMN_FK_UNIT: product.unitId,
+//        ProductTable.COLUMN_FK_UNIT: product.unitId,
         ProductTable.COLUMN_FK_TYPE: product.typeId,
-        ProductTable.COLUMN_FK_SIZE: product.sizeId,
       };
       if (!modeInsert) {
         dataToBeInserted.addAll({ProductTable.COLUMN_ID: product.id});

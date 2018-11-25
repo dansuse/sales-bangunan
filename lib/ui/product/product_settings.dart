@@ -69,14 +69,14 @@ class _ProductSettingsState extends State<ProductSettings> {
       defaultProductStatus = true;
     } else {
       _inputProductNameController.text = widget.product.name;
-      _inputProductPriceController.text = widget.product.price.toString();
+//      _inputProductPriceController.text = widget.product.price.toString();
       _inputProductStockController.text = widget.product.stock.toString();
       _inputProductDescriptionController.text = widget.product.description;
-      _inputProductSizeController.text = widget.product.size.toString();
+//      _inputProductSizeController.text = widget.product.size.toString();
       defaultProductStatus = widget.product.status == 1 ? true : false;
       _cupertinoPickerBloc.initializeBrand(widget.product.brandId);
       _cupertinoPickerBloc.initializeType(widget.product.typeId);
-      _cupertinoPickerBloc.initializeSize(widget.product.sizeId);
+//      _cupertinoPickerBloc.initializeSize(widget.product.sizeId);
       print("init state terpanggil untuk product tidak null");
     }
   }
@@ -249,7 +249,34 @@ class _ProductSettingsState extends State<ProductSettings> {
                     children: <Widget>[
                       new Expanded(
                         flex: 4,
-                        child: new TextFormField(
+                        child: Container(),
+                      ),
+                      const SizedBox(
+                        width: 4.0,
+                      ),
+                      buildProductSizeCupertino(context),
+                    ],
+                  ),
+                  buildProductStatusWidget(),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4.0),
+//                      boxShadow: [
+//                        new BoxShadow(
+//                            color: Colors.black54,
+//                            offset: new Offset(20.0, 10.0),
+//                            blurRadius: 20.0,
+//                            spreadRadius: 40.0
+//                        )
+//                      ],
+                    ),
+                    child: Column(
+                      children: <Widget>[
+                        new TextFormField(
                           controller: _inputProductSizeController,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
@@ -261,12 +288,26 @@ class _ProductSettingsState extends State<ProductSettings> {
                                 vertical: 0.0, horizontal: 0.0),
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 4.0,
-                      ),
-                      buildProductSizeCupertino(context),
-                    ],
+                        new TextFormField(
+                          controller: _inputProductPriceController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            WhitelistingTextInputFormatter.digitsOnly,
+                            new CurrencyInputFormatter(),
+                          ],
+                          decoration: InputDecoration(
+                            border: UnderlineInputBorder(
+                                borderSide: BorderSide(color: colorBlack)),
+                            labelText: 'Harga Produk',
+                            labelStyle: TextStyle(
+                                color: labelColor
+                            ),
+                            contentPadding:
+                            EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   buildProductStatusWidget(),
                   const SizedBox(
