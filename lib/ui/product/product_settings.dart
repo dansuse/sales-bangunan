@@ -7,11 +7,13 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:salbang/bloc/cupertino_picker_bloc.dart';
+import 'package:salbang/bloc/image_bloc.dart';
 import 'package:salbang/bloc/product_bloc.dart';
 import 'package:salbang/cupertino_data.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/model/button_state.dart';
 import 'package:salbang/model/product.dart';
+import 'package:salbang/model/product_image.dart';
 import 'package:salbang/model/response_database.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/currency_input_formatter.dart';
@@ -40,17 +42,18 @@ class _ProductSettingsState extends State<ProductSettings> {
   //int _selectedColorIndex = 0;
   CupertinoPickerBloc _cupertinoPickerBloc;
   ProductBloc productBloc;
+  ImageBloc _imageBloc;
   StreamSubscription productOperationSubscription;
-  List<File> _image;
+  List<ProductImage> _image;
   Color labelColor;
   Color selectedCupertinoColor;
+
   @override
   void initState() {
     super.initState();
     labelColor = Colors.black54;
-    //selectedCupertinoColor = CupertinoColors.inactiveGray;
     selectedCupertinoColor = CupertinoColors.black;
-    _image = <File>[];
+    _image = <ProductImage>[];
     _inputProductNameController = TextEditingController();
     _inputProductPriceController = TextEditingController();
     _inputProductStockController = TextEditingController();
@@ -88,6 +91,8 @@ class _ProductSettingsState extends State<ProductSettings> {
     _inputProductDescriptionController.dispose();
     _inputProductSizeController.dispose();
     _cupertinoPickerBloc.dispose();
+    _imageBloc.dispose();
+    productBloc.dispose();
     super.dispose();
   }
 
@@ -96,9 +101,24 @@ class _ProductSettingsState extends State<ProductSettings> {
       await productOperationSubscription.cancel();
     }
     productBloc = ProductBloc(DBHelper());
+    _imageBloc = ImageBloc(DBHelper());
+
     productBloc.outputOperationResult.listen((response) {
-      _keyScaffold.currentState.showSnackBar(
-          SnackbarBuilder.getSnackbar(response.message, StringConstant.OK));
+      if(response.result == ResponseDatabase.SUCCESS) {
+        _keyScaffold.currentState.showSnackBar(
+            SnackbarBuilder.getSnackbar(response.message, StringConstant.OK));
+        print("image length "  + _image.length.toString());
+        if(_image.length > 0 && widget.product == null) {
+          _imageBloc.insertImageIntoDatabase(_image, response.data.id);
+        }
+      }
+    });
+
+    _imageBloc.outputInsertImageResponse.listen((response) {
+      if(response.result == ResponseDatabase.SUCCESS) {
+        _keyScaffold.currentState.showSnackBar(
+            SnackbarBuilder.getSnackbar(response.message, StringConstant.OK));
+      }
     });
   }
 
@@ -107,6 +127,9 @@ class _ProductSettingsState extends State<ProductSettings> {
     initBloc();
     if (widget.product == null) {
       _cupertinoPickerBloc.populateProductAttributes();
+    }
+    else{
+      _imageBloc.getImageFromDatabase(widget.product.id);
     }
 
     return new SafeArea(
@@ -157,9 +180,7 @@ class _ProductSettingsState extends State<ProductSettings> {
                       border: UnderlineInputBorder(
                           borderSide: BorderSide(color: colorBlack)),
                       labelText: 'Nama Produk',
-                      labelStyle: TextStyle(
-                        color: labelColor
-                      ),
+                      labelStyle: TextStyle(color: labelColor),
                       contentPadding:
                           EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
                     ),
@@ -178,9 +199,7 @@ class _ProductSettingsState extends State<ProductSettings> {
                       border: UnderlineInputBorder(
                           borderSide: BorderSide(color: colorBlack)),
                       labelText: 'Harga Produk',
-                      labelStyle: TextStyle(
-                          color: labelColor
-                      ),
+                      labelStyle: TextStyle(color: labelColor),
                       contentPadding:
                           EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
                     ),
@@ -198,9 +217,7 @@ class _ProductSettingsState extends State<ProductSettings> {
                       border: UnderlineInputBorder(
                           borderSide: BorderSide(color: colorBlack)),
                       labelText: 'Stok Produk',
-                      labelStyle: TextStyle(
-                          color: labelColor
-                      ),
+                      labelStyle: TextStyle(color: labelColor),
                       contentPadding:
                           EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
                     ),
@@ -215,9 +232,7 @@ class _ProductSettingsState extends State<ProductSettings> {
                       border: UnderlineInputBorder(
                           borderSide: BorderSide(color: colorBlack)),
                       labelText: 'Deskripsi Produk',
-                      labelStyle: TextStyle(
-                          color: labelColor
-                      ),
+                      labelStyle: TextStyle(color: labelColor),
                       contentPadding:
                           EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
                     ),
@@ -241,9 +256,7 @@ class _ProductSettingsState extends State<ProductSettings> {
                             border: UnderlineInputBorder(
                                 borderSide: BorderSide(color: colorBlack)),
                             labelText: 'Ukuran Produk',
-                            labelStyle: TextStyle(
-                                color: labelColor
-                            ),
+                            labelStyle: TextStyle(color: labelColor),
                             contentPadding: EdgeInsets.symmetric(
                                 vertical: 0.0, horizontal: 0.0),
                           ),
@@ -263,18 +276,17 @@ class _ProductSettingsState extends State<ProductSettings> {
                     initialData: ButtonState.DISABLED,
                     stream: _cupertinoPickerBloc.outputButtonState,
                     builder: (context, snapshot) {
-                      if(snapshot.data == ButtonState.IDLE){
+                      if (snapshot.data == ButtonState.IDLE) {
                         return new RaisedButton(
                           child: const Text('Tambahkan'),
                           onPressed: onButtonPressed,
                         );
-                      } else if(snapshot.data == ButtonState.LOADING){
+                      } else if (snapshot.data == ButtonState.LOADING) {
                         return const RaisedButton(
-                          child: Center(
-                              child: CircularProgressIndicator()),
+                          child: Center(child: CircularProgressIndicator()),
                           onPressed: null,
                         );
-                      } else if(snapshot.data == ButtonState.DISABLED){
+                      } else if (snapshot.data == ButtonState.DISABLED) {
                         return const RaisedButton(
                           child: const Text('Tambahkan'),
                           onPressed: null,
@@ -294,14 +306,14 @@ class _ProductSettingsState extends State<ProductSettings> {
   void onButtonPressed() {
     if (!_cupertinoPickerBloc.selectedBrand.isEmpty() &&
         !_cupertinoPickerBloc.selectedType.isEmpty() &&
-        !_cupertinoPickerBloc.selectedSize.isEmpty()
-        && _inputProductNameController.text.isNotEmpty
-        && _inputProductPriceController.text.isNotEmpty
-        && _inputProductStockController.text.isNotEmpty
-        && _inputProductDescriptionController.text.isNotEmpty
-        && _inputProductSizeController.text.isNotEmpty
-    ) {
-      String unformattedPrice = _inputProductPriceController.value.text.toString();
+        !_cupertinoPickerBloc.selectedSize.isEmpty() &&
+        _inputProductNameController.text.isNotEmpty &&
+        _inputProductPriceController.text.isNotEmpty &&
+        _inputProductStockController.text.isNotEmpty &&
+        _inputProductDescriptionController.text.isNotEmpty &&
+        _inputProductSizeController.text.isNotEmpty) {
+      String unformattedPrice =
+          _inputProductPriceController.value.text.toString();
       unformattedPrice = unformattedPrice.replaceAll(".", "");
       unformattedPrice = unformattedPrice.replaceAll("Rp", "");
       productBloc.insertOrUpdateProduct(
@@ -362,15 +374,18 @@ class _ProductSettingsState extends State<ProductSettings> {
                           _cupertinoPickerBloc.selectedBrand.index);
                     },
               child: _buildMenu(<Widget>[
-                Text('Merk',
-                  style: TextStyle(color: labelColor),),
+                Text(
+                  'Merk',
+                  style: TextStyle(color: labelColor),
+                ),
                 new StreamBuilder<CupertinoData>(
                   initialData: CupertinoData.empty(),
                   stream: _cupertinoPickerBloc.outputSelectBrand,
-                  builder: (context, snapshotSelectedItem){
-                    if(snapshotSelectedItem.data.isEmpty()){
-                      return buildSelectedCupertinoItemText("Tidak ada data merk");
-                    }else{
+                  builder: (context, snapshotSelectedItem) {
+                    if (snapshotSelectedItem.data.isEmpty()) {
+                      return buildSelectedCupertinoItemText(
+                          "Tidak ada data merk");
+                    } else {
                       return buildSelectedCupertinoItemText(
                           snapshotSelectedItem.data.information);
                     }
@@ -409,10 +424,11 @@ class _ProductSettingsState extends State<ProductSettings> {
                 child: new StreamBuilder<CupertinoData>(
                   initialData: CupertinoData.empty(),
                   stream: _cupertinoPickerBloc.outputSelectSize,
-                  builder: (context, snapshotSelectedItem){
-                    if(snapshotSelectedItem.data.isEmpty()){
-                      return buildSelectedCupertinoItemText("Tidak ada data size");
-                    }else{
+                  builder: (context, snapshotSelectedItem) {
+                    if (snapshotSelectedItem.data.isEmpty()) {
+                      return buildSelectedCupertinoItemText(
+                          "Tidak ada data size");
+                    } else {
                       return buildSelectedCupertinoItemText(
                           snapshotSelectedItem.data.information);
                     }
@@ -447,15 +463,18 @@ class _ProductSettingsState extends State<ProductSettings> {
                       );
                     },
               child: _buildMenu(<Widget>[
-                Text('Tipe',
-                style: TextStyle(color: labelColor),),
+                Text(
+                  'Tipe',
+                  style: TextStyle(color: labelColor),
+                ),
                 new StreamBuilder<CupertinoData>(
                   initialData: CupertinoData.empty(),
                   stream: _cupertinoPickerBloc.outputSelectType,
                   builder: (context, snapshotSelectedItem) {
-                    if(snapshotSelectedItem.data.isEmpty()){
-                      return buildSelectedCupertinoItemText("Tidak ada data type");
-                    }else{
+                    if (snapshotSelectedItem.data.isEmpty()) {
+                      return buildSelectedCupertinoItemText(
+                          "Tidak ada data type");
+                    } else {
                       return buildSelectedCupertinoItemText(
                           snapshotSelectedItem.data.information);
                     }
@@ -588,31 +607,64 @@ class _ProductSettingsState extends State<ProductSettings> {
   }
 
   Widget buildProductImageListWidget() {
-    return new ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _image.length + 1,
-        itemBuilder: (context, position) {
-          return position == 0
-              ? Column(
-                  children: <Widget>[
-                    new Expanded(
-                      child: buildAddProductImageWidget(context),
-                    ),
-                  ],
-                )
-              : Column(
-                  children: <Widget>[
-                    new Expanded(
-                        child: buildProductImageWidget(context,
-                            imagePath: _image[position - 1],
-                            position: position - 1)),
-                  ],
-                );
+    return StreamBuilder<List<ProductImage>>(
+        stream: _imageBloc.outputImageFilePath,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            _image = snapshot.data;
+           return new ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: snapshot.data.length+1,
+                itemBuilder: (context, position) {
+                  return position == 0
+                      ? new Column(
+                    children: <Widget>[
+                      new Expanded(
+                        child: buildAddProductImageWidget(context),
+                      ),
+                    ],
+                  )
+                      : new Column(
+                    children: <Widget>[
+                      new Expanded(
+                          child: buildProductImageWidget(context,
+                              imagePath:snapshot.data[position-1].url,
+                              position: position - 1)),
+                    ],
+                  );
+                });
+          }
+           return new ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: 1,
+                itemBuilder: (context, position) {
+                  return position == 0
+                      ? new Column(
+                    children: <Widget>[
+                      new Expanded(
+                        child: buildAddProductImageWidget(context),
+                      ),
+                    ],
+                  )
+                      : new Column(
+                    children: <Widget>[
+                      new Expanded(
+                          child: buildProductImageWidget(context,
+                              imagePath: _image[position - 1].url,
+                              position: position - 1)),
+                    ],
+                  );
+                });
+
         });
   }
 
   Widget buildProductImageWidget(BuildContext context,
-      {File imagePath, int position}) {
+      {String imagePath, int position}) {
+    print("buildProductImageWidget---> " + imagePath);
+    String image = imagePath.replaceAll("File: ", "");
+    image = image.replaceAll("'", "");
+    File imageFile = new File(image);
     return new Container(
         width: MediaQuery.of(context).size.width / 2,
         child: new Card(
@@ -620,18 +672,21 @@ class _ProductSettingsState extends State<ProductSettings> {
           child: new Stack(
             fit: StackFit.expand,
             children: <Widget>[
-              new Image.file(imagePath),
+              new Image.file(imageFile),
               new Positioned(
                 right: 0.0,
                 child: new IconButton(
-                    icon: const Icon(Icons.cancel), onPressed: () {
-//                      var dir = new Directory(imagePath.toString());
-                      imagePath.deleteSync(recursive: true);
-                      _image.removeAt(position);
-                      imageCache.clear();
-                      setState(() {
-                      });
-                }),
+                    icon: const Icon(Icons.cancel),
+                    onPressed: () async {
+                      if (widget.product == null) {
+                        print("x1");
+                        _imageBloc.deleteImageFilePath(position);
+                      }
+                      else if (widget.product != null) {
+                        print("x2");
+                        _imageBloc.deleteImageFilePath(position, productImage: _image[position]);
+                      }
+                    }),
               ),
             ],
           ),
@@ -694,9 +749,19 @@ class _ProductSettingsState extends State<ProductSettings> {
 
   Future getImage(ImageSource imageSource) async {
     final File image = await ImagePicker.pickImage(source: imageSource);
-    if(image != null){
-      _image.add(image);
-      setState(() {});
+    if(image != null) {
+      print("getImage---> " + image.toString());
+      if(widget.product == null) {
+        _imageBloc.inputImageFilePath.add(image);
+      }
+      else{
+        _imageBloc.insertImageFilePath(image, product: widget.product);
+      }
     }
+
+//    if(image != null){
+//      _image.add(image);
+//      setState(() {});
+//    }
   }
 }

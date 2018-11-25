@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:salbang/bloc/image_bloc.dart';
 import 'package:salbang/bloc/product_bloc.dart';
 import 'package:salbang/database/database.dart';
+
 import 'package:salbang/model/product.dart';
 import 'package:salbang/model/response_database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
@@ -64,6 +66,7 @@ class _ProductState extends State<ProductCatalog> {
   Widget build(BuildContext context) {
     productBloc = BlocProvider.of<ProductBloc>(context);
     productBloc.getProductsForCatalog(
+
         brandId: widget.brandId,
         typeId: widget.typeId);
     return new SafeArea(
@@ -94,9 +97,11 @@ class _ProductState extends State<ProductCatalog> {
                               onTap: () {
                                 NavigationUtil.navigateToAnyWhere(
                                     context,
-                                    new ProductCatalogDetail(
-                                      product: snapshot.data.data[index],
-                                    ));
+                                    new BlocProvider<ImageBloc>(
+                                        bloc: ImageBloc(DBHelper()),
+                                        child: ProductCatalogDetail(
+                                          product: snapshot.data.data[index],
+                                        )));
                               },
                               child: new ProductListItems(
                                   snapshot.data.data[index]),
@@ -135,6 +140,4 @@ class _ProductState extends State<ProductCatalog> {
       ),
     ));
   }
-
-
 }

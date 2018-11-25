@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:salbang/bloc/brand_bloc.dart';
 import 'package:salbang/bloc/cupertino_picker_bloc.dart';
+import 'package:salbang/bloc/image_bloc.dart';
 import 'package:salbang/bloc/my_homepage_bloc.dart';
 import 'package:salbang/bloc/product_bloc.dart';
 import 'package:salbang/bloc/type_bloc.dart';
@@ -53,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
         elevation: 0.0,
         centerTitle: true,
         backgroundColor: colorAppbar,
-        title: const Text("Sal-Bang"),
+        title: const Text("Restu Jaya"),
     );
   }
 
@@ -116,7 +117,9 @@ class _MyHomePageState extends State<MyHomePage> {
           bloc: ProductBloc(DBHelper()),
           child: new BlocProvider<CupertinoPickerBloc>(
             bloc: CupertinoPickerBloc(DBHelper()),
-            child: new ProductMaster(),
+            child:new BlocProvider<ImageBloc>(
+              bloc: ImageBloc(DBHelper()),
+              child: ProductMaster()),
           ),
         );
       case DrawerListItemData.MASTER_BRAND:
