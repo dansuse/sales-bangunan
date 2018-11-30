@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:rxdart/rxdart.dart';
+import 'package:salbang/bloc/product_unit_dropdown_bloc.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/database/table_schema/product.dart';
 import 'package:salbang/model/button_state.dart';
 import 'package:salbang/model/product.dart';
+import 'package:salbang/model/product_variant.dart';
 import 'package:salbang/model/response_database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 
@@ -26,6 +28,17 @@ class ProductBloc extends BlocBase{
 
   final PublishSubject<ResponseDatabase<Product>> _outputOperationResult = new PublishSubject();
   Observable<ResponseDatabase<Product>> get outputOperationResult => _outputOperationResult.stream;
+
+  final BehaviorSubject<List<ProductVariant>> _outputProductVariants = new BehaviorSubject<List<ProductVariant>>();
+  Observable<List<ProductVariant>> get outputProductVariants => _outputProductVariants.stream;
+
+  List<ProductVariant> variants = <ProductVariant>[];
+
+  void addProductVariant(){
+    variants.add(new ProductVariant(0.0, "", -1, -1,
+        productUnitDropdownBloc: ProductUnitDropdownBloc(dbHelper)));
+    _outputProductVariants.add(variants);
+  }
 
   bool productStatus = true;
   void updateStatus(bool status){

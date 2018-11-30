@@ -14,6 +14,8 @@ import 'package:salbang/database/database.dart';
 import 'package:salbang/model/button_state.dart';
 import 'package:salbang/model/product.dart';
 import 'package:salbang/model/product_image.dart';
+import 'package:salbang/model/product_unit.dart';
+import 'package:salbang/model/product_variant.dart';
 import 'package:salbang/model/response_database.dart';
 import 'package:salbang/resources/colors.dart';
 import 'package:salbang/resources/currency_input_formatter.dart';
@@ -261,10 +263,17 @@ class _ProductSettingsState extends State<ProductSettings> {
                   const SizedBox(
                     height: 8.0,
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4.0),
+                  StreamBuilder<List<ProductVariant>>(
+                    initialData: const <ProductVariant>[],
+                    stream: productBloc.outputProductVariants,
+                    builder: (context, snapshot){
+                      final List<Widget> productVariantCards = <Widget>[];
+                      for(ProductVariant variant in snapshot.data){
+                        productVariantCards.add(
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4.0),
 //                      boxShadow: [
 //                        new BoxShadow(
 //                            color: Colors.black54,
@@ -273,41 +282,75 @@ class _ProductSettingsState extends State<ProductSettings> {
 //                            spreadRadius: 40.0
 //                        )
 //                      ],
-                    ),
-                    child: Column(
-                      children: <Widget>[
-                        new TextFormField(
-                          controller: _inputProductSizeController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: UnderlineInputBorder(
-                                borderSide: BorderSide(color: colorBlack)),
-                            labelText: 'Ukuran Produk',
-                            labelStyle: TextStyle(color: labelColor),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 0.0, horizontal: 0.0),
-                          ),
-                        ),
-                        new TextFormField(
-                          controller: _inputProductPriceController,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: <TextInputFormatter>[
-                            WhitelistingTextInputFormatter.digitsOnly,
-                            new CurrencyInputFormatter(),
-                          ],
-                          decoration: InputDecoration(
-                            border: UnderlineInputBorder(
-                                borderSide: BorderSide(color: colorBlack)),
-                            labelText: 'Harga Produk',
-                            labelStyle: TextStyle(
-                                color: labelColor
                             ),
-                            contentPadding:
-                            EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
-                          ),
-                        ),
-                      ],
-                    ),
+                            child: Column(
+                              children: <Widget>[
+                                new TextFormField(
+                                  controller: _inputProductPriceController,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: <TextInputFormatter>[
+                                    WhitelistingTextInputFormatter.digitsOnly,
+                                    new CurrencyInputFormatter(),
+                                  ],
+                                  decoration: InputDecoration(
+                                    border: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: colorBlack)),
+                                    labelText: 'Harga Produk',
+                                    labelStyle: TextStyle(
+                                        color: labelColor
+                                    ),
+                                    contentPadding:
+                                    EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
+                                  ),
+                                ),
+                                new Row(
+                                  children: <Widget>[
+                                    new TextFormField(
+                                      controller: _inputProductSizeController,
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                        border: UnderlineInputBorder(
+                                            borderSide: BorderSide(color: colorBlack)),
+                                        labelText: 'Ukuran Produk',
+                                        labelStyle: TextStyle(color: labelColor),
+                                        contentPadding: EdgeInsets.symmetric(
+                                            vertical: 0.0, horizontal: 0.0),
+                                      ),
+                                    ),
+                                    StreamBuilder<List<ProductUnit>>(
+                                      stream: variant.productUnitDropdownBloc.outputProductUnits,
+                                      builder: (context, snapshot){
+                                        return new DropdownButton<ProductUnit>(
+                                          items: snapshot.data.map((ProductUnit value) {
+                                            return new DropdownMenuItem<ProductUnit>(
+                                              value: value,
+                                              child: new Text(value.name),
+                                            );
+                                          }).toList(),
+                                          onChanged: (_) {},
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          )
+                        );
+                      }
+                      return Column(
+                        children: productVariantCards,
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  RaisedButton(
+                    onPressed: (){
+                      productBloc.addProductVariant();
+                    },
+                    child: Icon(Icons.add),
                   ),
                   buildProductStatusWidget(),
                   const SizedBox(

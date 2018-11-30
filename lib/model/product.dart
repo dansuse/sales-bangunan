@@ -2,6 +2,7 @@ import 'package:salbang/model/brand.dart';
 import 'package:salbang/model/product_size.dart';
 import 'package:salbang/model/product_type.dart';
 import 'package:salbang/model/product_unit.dart';
+import 'package:salbang/model/product_variant.dart';
 
 class Product{
   int id;
@@ -14,13 +15,13 @@ class Product{
 
   int brandId;
   int typeId;
-  int unitId;
+//  int unitId;
 //  int sizeId;
 
   Brand productBrand;
   ProductType productType;
-  ProductSize productSize;
-  ProductUnit productUnit;
+  //ProductUnit productUnit;
+  List<ProductVariant> productVariants;
 
 
 //  Product([this.id, this.name, this.price, this.stock, this.description,
@@ -29,8 +30,6 @@ class Product{
   Product(this.id, this.name, this.stock, this.description,
     this.status, this.brandId, this.typeId,
     {this.productBrand,
-      this.productType,
-      this.productSize,
-      this.productUnit});
+      this.productType, this.productVariants});
 
 }
