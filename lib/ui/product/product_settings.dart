@@ -305,31 +305,38 @@ class _ProductSettingsState extends State<ProductSettings> {
                                 ),
                                 new Row(
                                   children: <Widget>[
-                                    new TextFormField(
-                                      controller: _inputProductSizeController,
-                                      keyboardType: TextInputType.number,
-                                      decoration: InputDecoration(
-                                        border: UnderlineInputBorder(
-                                            borderSide: BorderSide(color: colorBlack)),
-                                        labelText: 'Ukuran Produk',
-                                        labelStyle: TextStyle(color: labelColor),
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 0.0, horizontal: 0.0),
+                                    Flexible(
+                                      flex: 1,
+                                      child: new TextFormField(
+                                        controller: _inputProductSizeController,
+                                        keyboardType: TextInputType.number,
+                                        decoration: InputDecoration(
+                                          border: UnderlineInputBorder(
+                                              borderSide: BorderSide(color: colorBlack)),
+                                          labelText: 'Ukuran Produk',
+                                          labelStyle: TextStyle(color: labelColor),
+                                          contentPadding: EdgeInsets.symmetric(
+                                              vertical: 0.0, horizontal: 0.0),
+                                        ),
                                       ),
                                     ),
-                                    StreamBuilder<List<ProductUnit>>(
-                                      stream: variant.productUnitDropdownBloc.outputProductUnits,
-                                      builder: (context, snapshot){
-                                        return new DropdownButton<ProductUnit>(
-                                          items: snapshot.data.map((ProductUnit value) {
-                                            return new DropdownMenuItem<ProductUnit>(
-                                              value: value,
-                                              child: new Text(value.name),
-                                            );
-                                          }).toList(),
-                                          onChanged: (_) {},
-                                        );
-                                      },
+                                    Flexible(
+                                      flex: 1,
+                                      child: StreamBuilder<List<ProductUnit>>(
+                                        initialData: const <ProductUnit>[],
+                                        stream: variant.productUnitDropdownBloc.outputProductUnits,
+                                        builder: (context, snapshot){
+                                          return new DropdownButton<ProductUnit>(
+                                            items: snapshot.data.map((ProductUnit value) {
+                                              return new DropdownMenuItem<ProductUnit>(
+                                                value: value,
+                                                child: new Text(value.name),
+                                              );
+                                            }).toList(),
+                                            onChanged: (_) {},
+                                          );
+                                        },
+                                      ),
                                     ),
                                   ],
                                 ),

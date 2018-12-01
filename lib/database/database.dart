@@ -381,9 +381,8 @@ class DBHelper {
     try {
       final Database dbClient = await db;
       String queryGet = "select ${ProductTable.NAME}.*, ${TypeTable
-          .NAME}.*, ${SizeTable.NAME}.*, ${BrandTable.NAME}.*" +
-          " from ${ProductTable.NAME}, ${TypeTable.NAME}, ${SizeTable
-              .NAME}, ${BrandTable.NAME} " +
+          .NAME}.*, ${BrandTable.NAME}.*" +
+          " from ${ProductTable.NAME}, ${TypeTable.NAME}, ${BrandTable.NAME} " +
           "where ${ProductTable.NAME}.${ProductTable
               .COLUMN_FK_BRAND} = ${BrandTable.NAME}.${BrandTable.COLUMN_ID} " +
 //          "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_UNIT} = ${UnitTable
@@ -391,7 +390,7 @@ class DBHelper {
           "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_TYPE} = ${TypeTable
               .NAME}.${TypeTable.COLUMN_ID} " +
           "AND ${BrandTable.NAME}.${BrandTable.COLUMN_STATUS} = 1 " +
-          "AND ${UnitTable.NAME}.${UnitTable.COLUMN_STATUS} = 1 " +
+//          "AND ${UnitTable.NAME}.${UnitTable.COLUMN_STATUS} = 1 " +
           "AND ${TypeTable.NAME}.${TypeTable.COLUMN_STATUS} = 1 " +
           "AND ${ProductTable.NAME}.${ProductTable.COLUMN_NAME} LIKE  '%" +
           productName +
@@ -467,15 +466,15 @@ class DBHelper {
 //      );
 
       final List<Map<String, dynamic>> queryResult = await dbClient.rawQuery(
-          "select ${ProductTable.NAME}.*, ${TypeTable.NAME}.*, ${SizeTable.NAME}.*, ${BrandTable.NAME}.*" +
-              " from ${ProductTable.NAME}, ${TypeTable.NAME}, ${SizeTable.NAME}, ${BrandTable.NAME} " +
+          "select ${ProductTable.NAME}.*, ${TypeTable.NAME}.*, ${BrandTable.NAME}.*" +
+              " from ${ProductTable.NAME}, ${TypeTable.NAME}, ${BrandTable.NAME} " +
               "where ${ProductTable.NAME}.${ProductTable.COLUMN_FK_BRAND} = ${BrandTable.NAME}.${BrandTable.COLUMN_ID} " +
 //              "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_SIZE} = ${SizeTable.NAME}.${SizeTable.COLUMN_ID} " +
 //              "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_UNIT} = ${UnitTable.NAME}.${UnitTable.COLUMN_ID} " +
               "AND ${ProductTable.NAME}.${ProductTable.COLUMN_FK_TYPE} = ${TypeTable.NAME}.${TypeTable.COLUMN_ID} " +
               "AND ${BrandTable.NAME}.${BrandTable.COLUMN_STATUS} = 1 " +
 //              "AND ${SizeTable.NAME}.${SizeTable.COLUMN_STATUS} = 1 " +
-              "AND ${UnitTable.NAME}.${UnitTable.COLUMN_STATUS} = 1 " +
+//              "AND ${UnitTable.NAME}.${UnitTable.COLUMN_STATUS} = 1 " +
               "AND ${TypeTable.NAME}.${TypeTable.COLUMN_STATUS} = 1 " +
               "AND ${ProductTable.NAME}.${ProductTable.COLUMN_STATUS} = 1 ");
 

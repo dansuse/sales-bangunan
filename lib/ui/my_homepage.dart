@@ -153,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print('- build homepage');
+//    print('- build homepage');
     _myHomePageBloc = BlocProvider.of<MyHomePageBloc>(context);
     final List<Widget> drawerOptions = <Widget>[];
     for (int i = 0; i < _drawerItemsData.length; i++) {
