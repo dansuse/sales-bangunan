@@ -17,9 +17,9 @@ class ProductListItems extends StatelessWidget {
             new Expanded(
               child: buildProductDescriptionWidget(context, 'Nama', product.name),
             ),
-            new Expanded(
-              child: buildProductDescriptionWidget(context, 'Ukuran', product.productSize.name),
-            ),
+//            new Expanded(
+//              child: buildProductDescriptionWidget(context, 'Ukuran', product.productSize.name),
+//            ),
             new Expanded(
               child: buildProductDescriptionWidget(context, 'Tipe', product.productType.name),
             ),

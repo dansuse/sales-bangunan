@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:rxdart/rxdart.dart';
+import 'package:salbang/bloc/product_unit_dropdown_bloc.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/database/table_schema/product.dart';
 import 'package:salbang/model/button_state.dart';
 import 'package:salbang/model/product.dart';
+import 'package:salbang/model/product_variant.dart';
 import 'package:salbang/model/response_database.dart';
 import 'package:salbang/provider/bloc_provider.dart';
 
@@ -26,6 +28,31 @@ class ProductBloc extends BlocBase{
 
   final PublishSubject<ResponseDatabase<Product>> _outputOperationResult = new PublishSubject();
   Observable<ResponseDatabase<Product>> get outputOperationResult => _outputOperationResult.stream;
+
+  final BehaviorSubject<List<ProductVariant>> _outputProductVariants = new BehaviorSubject<List<ProductVariant>>();
+  Observable<List<ProductVariant>> get outputProductVariants => _outputProductVariants.stream;
+
+  List<ProductVariant> variants = <ProductVariant>[];
+
+  void addProductVariant(){
+    variants.add(new ProductVariant(0.0, "", -1, -1,
+        productUnitDropdownBloc: ProductUnitDropdownBloc(dbHelper)));
+    _outputProductVariants.add(variants);
+  }
+
+  void deleteProductVariant(int index){
+    variants.removeAt(index);
+    _outputProductVariants.add(variants);
+  }
+
+  void changeProductVariantPrice(int index, String priceStr){
+    final double price = double.parse(priceStr.replaceAll("Rp", "").replaceAll(".", ""));
+    variants[index].price = price;
+  }
+
+  void changeProductVariantTypeOrSize(int index, String typeOrSizeStr){
+    variants[index].typeOrSize = typeOrSizeStr;
+  }
 
   bool productStatus = true;
   void updateStatus(bool status){
@@ -74,11 +101,11 @@ class ProductBloc extends BlocBase{
     _outputMasterProducts.add(response);
   }
 
-  Future<void> insertOrUpdateProduct(int id, String name, double price,
-      int stock, String description, int size,
-      int fkBrand, int fkUnit, int fkType)async{
+  Future<void> insertOrUpdateProduct(int id, String name,
+      int stock, String description,
+      int fkBrand, int fkType)async{
     _outputButtonState.add(ButtonState.LOADING);
-    print("Brand:" + fkBrand.toString() + "||Unit:" + fkUnit.toString() + "||Type:" + fkType.toString());
+    print("Brand:" + fkBrand.toString() + "||Type:" + fkType.toString());
     final Product product = Product(
       id,
       name,
