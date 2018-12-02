@@ -53,7 +53,7 @@ class ProductBrandMasterState extends State<ProductBrandMaster>{
     return new AppBar(
         elevation: 0.0,
         backgroundColor: colorAppbar,
-        title: const Text("Master Ukuran"),
+        title: const Text("Master Merk"),
         actions: [
           searchBar.getSearchAction(context),
           new IconButton(
