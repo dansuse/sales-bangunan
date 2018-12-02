@@ -304,7 +304,7 @@ class DBHelper {
             UnitTable.COLUMN_DESCRIPTION,
             UnitTable.COLUMN_STATUS
           ],
-          where: '${UnitTable.COLUMN_NAME} LIKE ?',
+          where: '${UnitTable.COLUMN_NAME} LIKE ? AND ${UnitTable.COLUMN_STATUS} = 1',
           whereArgs: ['%${query}%']);
       if (response.isEmpty) {
         return ResponseDatabase<List<ProductUnit>>(
