@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:salbang/bloc/cupertino_picker_bloc.dart';
 import 'package:salbang/bloc/image_bloc.dart';
 import 'package:salbang/bloc/product_bloc.dart';
+import 'package:salbang/bloc/product_unit_dropdown_bloc.dart';
 import 'package:salbang/cupertino_data.dart';
 import 'package:salbang/database/database.dart';
 import 'package:salbang/model/button_state.dart';
@@ -35,10 +36,11 @@ class ProductSettings extends StatefulWidget {
 class _ProductSettingsState extends State<ProductSettings> {
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
   TextEditingController _inputProductNameController;
-  TextEditingController _inputProductPriceController;
   TextEditingController _inputProductStockController;
   TextEditingController _inputProductDescriptionController;
-  TextEditingController _inputProductSizeController;
+
+  List<TextEditingController> inputPriceProductVariants = <TextEditingController>[];
+  List<TextEditingController> inputTypeOrSizeProductVariants = <TextEditingController>[];
 
   bool defaultProductStatus = false;
   //int _selectedColorIndex = 0;
@@ -53,32 +55,28 @@ class _ProductSettingsState extends State<ProductSettings> {
   @override
   void initState() {
     super.initState();
+    productBloc = ProductBloc(DBHelper());
+    _imageBloc = ImageBloc(DBHelper());
     labelColor = Colors.black54;
     selectedCupertinoColor = CupertinoColors.black;
     _image = <ProductImage>[];
     _inputProductNameController = TextEditingController();
-    _inputProductPriceController = TextEditingController();
+
     _inputProductStockController = TextEditingController();
     _inputProductDescriptionController = TextEditingController();
-    _inputProductSizeController = TextEditingController();
     _cupertinoPickerBloc = CupertinoPickerBloc(DBHelper());
     if (widget.product == null) {
       _inputProductNameController.text = "Susu Cap Tiga";
-      //_inputProductPriceController.text = "200000";
       _inputProductStockController.text = "50";
       _inputProductDescriptionController.text = "mantap";
-      _inputProductSizeController.text = "500";
       defaultProductStatus = true;
     } else {
       _inputProductNameController.text = widget.product.name;
-//      _inputProductPriceController.text = widget.product.price.toString();
       _inputProductStockController.text = widget.product.stock.toString();
       _inputProductDescriptionController.text = widget.product.description;
-//      _inputProductSizeController.text = widget.product.size.toString();
       defaultProductStatus = widget.product.status == 1 ? true : false;
       _cupertinoPickerBloc.initializeBrand(widget.product.brandId);
       _cupertinoPickerBloc.initializeType(widget.product.typeId);
-//      _cupertinoPickerBloc.initializeSize(widget.product.sizeId);
       print("init state terpanggil untuk product tidak null");
     }
   }
@@ -88,10 +86,8 @@ class _ProductSettingsState extends State<ProductSettings> {
   @override
   void dispose() {
     _inputProductNameController.dispose();
-    _inputProductPriceController.dispose();
     _inputProductStockController.dispose();
     _inputProductDescriptionController.dispose();
-    _inputProductSizeController.dispose();
     _cupertinoPickerBloc.dispose();
     _imageBloc.dispose();
     productBloc.dispose();
@@ -102,10 +98,8 @@ class _ProductSettingsState extends State<ProductSettings> {
     if (productOperationSubscription != null) {
       await productOperationSubscription.cancel();
     }
-    productBloc = ProductBloc(DBHelper());
-    _imageBloc = ImageBloc(DBHelper());
 
-    productBloc.outputOperationResult.listen((response) {
+    productOperationSubscription = productBloc.outputOperationResult.listen((response) {
       if(response.result == ResponseDatabase.SUCCESS) {
         _keyScaffold.currentState.showSnackBar(
             SnackbarBuilder.getSnackbar(response.message, StringConstant.OK));
@@ -191,25 +185,6 @@ class _ProductSettingsState extends State<ProductSettings> {
                     height: 8.0,
                   ),
                   new TextFormField(
-                    controller: _inputProductPriceController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      WhitelistingTextInputFormatter.digitsOnly,
-                      new CurrencyInputFormatter(),
-                    ],
-                    decoration: InputDecoration(
-                      border: UnderlineInputBorder(
-                          borderSide: BorderSide(color: colorBlack)),
-                      labelText: 'Harga Produk',
-                      labelStyle: TextStyle(color: labelColor),
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  new TextFormField(
                     controller: _inputProductStockController,
                     keyboardType: TextInputType.number,
                     inputFormatters: <TextInputFormatter>[
@@ -268,73 +243,108 @@ class _ProductSettingsState extends State<ProductSettings> {
                     stream: productBloc.outputProductVariants,
                     builder: (context, snapshot){
                       final List<Widget> productVariantCards = <Widget>[];
-                      for(ProductVariant variant in snapshot.data){
+                      for(int i=0; i<snapshot.data.length; i++){
+                        final ProductVariant variant = snapshot.data[i];
                         productVariantCards.add(
                           Container(
+                            margin: EdgeInsets.only(top: 8.0, bottom: 8.0),
+                            padding: EdgeInsets.all(16.0),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(4.0),
-//                      boxShadow: [
-//                        new BoxShadow(
-//                            color: Colors.black54,
-//                            offset: new Offset(20.0, 10.0),
-//                            blurRadius: 20.0,
-//                            spreadRadius: 40.0
-//                        )
-//                      ],
                             ),
                             child: Column(
                               children: <Widget>[
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      width: 40.0,
+                                      height: 40.0,
+                                      alignment: Alignment.center,
+                                      child: FlatButton(
+                                        child: const Icon(Icons.close),
+                                        onPressed: (){
+                                          productBloc.deleteProductVariant(i);
+                                          inputPriceProductVariants.removeAt(i);
+                                          inputTypeOrSizeProductVariants.removeAt(i);
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
                                 new TextFormField(
-                                  controller: _inputProductPriceController,
+                                  controller: inputPriceProductVariants[i],
+                                  onFieldSubmitted: (String value){
+                                    productBloc.changeProductVariantPrice(i, value);
+                                  },
                                   keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
                                     WhitelistingTextInputFormatter.digitsOnly,
                                     new CurrencyInputFormatter(),
                                   ],
                                   decoration: InputDecoration(
-                                    border: UnderlineInputBorder(
+                                    border: const UnderlineInputBorder(
                                         borderSide: BorderSide(color: colorBlack)),
                                     labelText: 'Harga Produk',
                                     labelStyle: TextStyle(
                                         color: labelColor
                                     ),
                                     contentPadding:
-                                    EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
+                                    const EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
                                   ),
+                                ),
+                                const SizedBox(
+                                  height: 12.0,
                                 ),
                                 new Row(
                                   children: <Widget>[
-                                    Flexible(
+                                    Expanded(
                                       flex: 1,
                                       child: new TextFormField(
-                                        controller: _inputProductSizeController,
+                                        controller: inputTypeOrSizeProductVariants[i],
+                                        onFieldSubmitted: (String value){
+                                          productBloc.changeProductVariantTypeOrSize(i, value);
+                                        },
                                         keyboardType: TextInputType.number,
                                         decoration: InputDecoration(
-                                          border: UnderlineInputBorder(
+                                          border: const UnderlineInputBorder(
                                               borderSide: BorderSide(color: colorBlack)),
                                           labelText: 'Ukuran Produk',
                                           labelStyle: TextStyle(color: labelColor),
-                                          contentPadding: EdgeInsets.symmetric(
+                                          contentPadding: const EdgeInsets.symmetric(
                                               vertical: 0.0, horizontal: 0.0),
                                         ),
                                       ),
                                     ),
-                                    Flexible(
+                                    const SizedBox(
+                                      width: 16.0,
+                                    ),
+                                    Expanded(
                                       flex: 1,
-                                      child: StreamBuilder<List<ProductUnit>>(
-                                        initialData: const <ProductUnit>[],
+                                      child: StreamBuilder<DropdownProductUnit>(
+                                        initialData: DropdownProductUnit(
+                                          <ProductUnit>[],
+                                        ),
                                         stream: variant.productUnitDropdownBloc.outputProductUnits,
                                         builder: (context, snapshot){
-                                          return new DropdownButton<ProductUnit>(
-                                            items: snapshot.data.map((ProductUnit value) {
-                                              return new DropdownMenuItem<ProductUnit>(
-                                                value: value,
-                                                child: new Text(value.name),
-                                              );
-                                            }).toList(),
-                                            onChanged: (_) {},
-                                          );
+                                          if(snapshot.data.items.isNotEmpty){
+                                            return new DropdownButton<ProductUnit>(
+                                              items: snapshot.data.items.map((ProductUnit value) {
+                                                return new DropdownMenuItem<ProductUnit>(
+                                                  value: value,
+                                                  child: new Text(value.name),
+                                                );
+                                              }).toList(),
+                                              onChanged: (ProductUnit newValue) {
+                                                variant.productUnitDropdownBloc.onDropdownChange(newValue);
+                                              },
+                                              value: snapshot.data.selectedValue,
+                                            );
+                                          }else{
+                                            return Container(child: Text(StringConstant.NO_DATA_AVAILABLE));
+                                          }
                                         },
                                       ),
                                     ),
@@ -355,6 +365,8 @@ class _ProductSettingsState extends State<ProductSettings> {
                   ),
                   RaisedButton(
                     onPressed: (){
+                      inputPriceProductVariants.add(TextEditingController());
+                      inputTypeOrSizeProductVariants.add(TextEditingController());
                       productBloc.addProductVariant();
                     },
                     child: Icon(Icons.add),
@@ -379,7 +391,7 @@ class _ProductSettingsState extends State<ProductSettings> {
                         );
                       } else if (snapshot.data == ButtonState.DISABLED) {
                         return const RaisedButton(
-                          child: const Text('Tambahkan'),
+                          child: Text('Tambahkan'),
                           onPressed: null,
                         );
                       }
@@ -399,23 +411,14 @@ class _ProductSettingsState extends State<ProductSettings> {
         !_cupertinoPickerBloc.selectedType.isEmpty() &&
         !_cupertinoPickerBloc.selectedSize.isEmpty() &&
         _inputProductNameController.text.isNotEmpty &&
-        _inputProductPriceController.text.isNotEmpty &&
         _inputProductStockController.text.isNotEmpty &&
-        _inputProductDescriptionController.text.isNotEmpty &&
-        _inputProductSizeController.text.isNotEmpty) {
-      String unformattedPrice =
-          _inputProductPriceController.value.text.toString();
-      unformattedPrice = unformattedPrice.replaceAll(".", "");
-      unformattedPrice = unformattedPrice.replaceAll("Rp", "");
+        _inputProductDescriptionController.text.isNotEmpty) {
       productBloc.insertOrUpdateProduct(
           (widget.product == null) ? DBHelper.ID_FOR_INSERT : widget.product.id,
           _inputProductNameController.text,
-          double.parse(unformattedPrice),
           int.parse(_inputProductStockController.text),
           _inputProductDescriptionController.text,
-          int.parse(_inputProductSizeController.text),
           _cupertinoPickerBloc.selectedBrand.idInformation,
-          _cupertinoPickerBloc.selectedSize.idInformation,
           _cupertinoPickerBloc.selectedType.idInformation);
     } else {
       _keyScaffold.currentState.showSnackBar(SnackbarBuilder.getSnackbar(

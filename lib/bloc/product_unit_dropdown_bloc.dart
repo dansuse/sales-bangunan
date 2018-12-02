@@ -8,10 +8,10 @@ import 'package:salbang/model/product_unit.dart';
 
 class ProductUnitDropdownBloc extends BlocBase{
 
-  final BehaviorSubject<List<ProductUnit>> _outputProductUnits = new BehaviorSubject<List<ProductUnit>>();
-  Observable<List<ProductUnit>> get outputProductUnits => _outputProductUnits.stream;
+  final BehaviorSubject<DropdownProductUnit> _outputProductUnits = new BehaviorSubject<DropdownProductUnit>();
+  Observable<DropdownProductUnit> get outputProductUnits => _outputProductUnits.stream;
   DBHelper dbHelper;
-  ProductUnit selectedProductUnit;
+  DropdownProductUnit dropdownData;
 
   ProductUnitDropdownBloc(this.dbHelper){
     populateDropdown();
@@ -20,14 +20,28 @@ class ProductUnitDropdownBloc extends BlocBase{
   Future<void> populateDropdown()async{
     final ResponseDatabase<List<ProductUnit>> responseProductUnits = await dbHelper.getProductUnits();
     if(responseProductUnits.result == ResponseDatabase.SUCCESS){
-      _outputProductUnits.add(responseProductUnits.data);
+      dropdownData = new DropdownProductUnit(responseProductUnits.data,
+          selectedValue: responseProductUnits.data[0]);
+      _outputProductUnits.add(dropdownData);
     }else{
-      _outputProductUnits.add(<ProductUnit>[]);
+      dropdownData = new DropdownProductUnit(<ProductUnit>[],);
+      _outputProductUnits.add(dropdownData);
     }
+  }
+
+  void onDropdownChange(ProductUnit newValue){
+    dropdownData.selectedValue = newValue;
+    _outputProductUnits.add(dropdownData);
   }
 
   @override
   void dispose() {
     _outputProductUnits.close();
   }
+}
+
+class DropdownProductUnit{
+  List<ProductUnit> items;
+  ProductUnit selectedValue;
+  DropdownProductUnit(this.items, {this.selectedValue});
 }

@@ -40,6 +40,20 @@ class ProductBloc extends BlocBase{
     _outputProductVariants.add(variants);
   }
 
+  void deleteProductVariant(int index){
+    variants.removeAt(index);
+    _outputProductVariants.add(variants);
+  }
+
+  void changeProductVariantPrice(int index, String priceStr){
+    final double price = double.parse(priceStr.replaceAll("Rp", "").replaceAll(".", ""));
+    variants[index].price = price;
+  }
+
+  void changeProductVariantTypeOrSize(int index, String typeOrSizeStr){
+    variants[index].typeOrSize = typeOrSizeStr;
+  }
+
   bool productStatus = true;
   void updateStatus(bool status){
     productStatus = status;
@@ -87,11 +101,11 @@ class ProductBloc extends BlocBase{
     _outputMasterProducts.add(response);
   }
 
-  Future<void> insertOrUpdateProduct(int id, String name, double price,
-      int stock, String description, int size,
-      int fkBrand, int fkUnit, int fkType)async{
+  Future<void> insertOrUpdateProduct(int id, String name,
+      int stock, String description,
+      int fkBrand, int fkType)async{
     _outputButtonState.add(ButtonState.LOADING);
-    print("Brand:" + fkBrand.toString() + "||Unit:" + fkUnit.toString() + "||Type:" + fkType.toString());
+    print("Brand:" + fkBrand.toString() + "||Type:" + fkType.toString());
     final Product product = Product(
       id,
       name,
