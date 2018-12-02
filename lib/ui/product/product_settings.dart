@@ -222,18 +222,6 @@ class _ProductSettingsState extends State<ProductSettings> {
                   const SizedBox(
                     height: 8.0,
                   ),
-                  new Row(
-                    children: <Widget>[
-                      new Expanded(
-                        flex: 4,
-                        child: Container(),
-                      ),
-                      const SizedBox(
-                        width: 4.0,
-                      ),
-                      buildProductSizeCupertino(context),
-                    ],
-                  ),
                   buildProductStatusWidget(),
                   const SizedBox(
                     height: 8.0,
@@ -371,7 +359,6 @@ class _ProductSettingsState extends State<ProductSettings> {
                     },
                     child: Icon(Icons.add),
                   ),
-                  buildProductStatusWidget(),
                   const SizedBox(
                     height: 8.0,
                   ),
