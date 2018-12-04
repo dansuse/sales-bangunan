@@ -9,4 +9,6 @@ stages:
 rununittest:
   script: ./test.sh
   stage: test
+  tags:
+    - salbang
 
