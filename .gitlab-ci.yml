@@ -1,5 +1,6 @@
 before_script:
   - pwd
+  - whoami
   - flutter --version
   - flutter doctor
   - flutter packages get
