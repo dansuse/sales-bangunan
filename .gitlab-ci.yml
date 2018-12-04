@@ -1,0 +1,12 @@
+before_script:
+  - flutter --version
+  - flutter doctor
+  - flutter packages get
+
+stages:
+  - test
+
+rununittest:
+  script: ./test.sh
+  stage: test
+
